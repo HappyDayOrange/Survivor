@@ -66,6 +66,7 @@ public class Player {
         incomingRelationshipStatus.add(enemies);
         outcomingRelationshipStatus.add(enemies);
         generateHelper.add(this);
+        this.errorCheckIncomingRelationshipStatus();
     }
 
     public Player(Player player,int roundNum, ArrayList<Player> playerList, Player[] playerArr) {
@@ -80,10 +81,29 @@ public class Player {
         this.inRelationSum = player.inRelationSum;
         this.outRelationSum = player.outRelationSum;
         this.playerName = player.playerName;
-        this.incomingRelationshipStatus = player.incomingRelationshipStatus;
-        this.outcomingRelationshipStatus = player.outcomingRelationshipStatus;
-        this.clearRelationshipStatus();
-        this.generateHelper.add(this);
+        List<Player> friends = new ArrayList<>();
+        incomingRelationshipStatus.add(friends);
+        outcomingRelationshipStatus.add(friends);
+        List<Player> allies = new ArrayList<>();
+        incomingRelationshipStatus.add(allies);
+        outcomingRelationshipStatus.add(allies);
+        List<Player> supporters = new ArrayList<>();
+        incomingRelationshipStatus.add(supporters);
+        outcomingRelationshipStatus.add(supporters);
+        List<Player> neutral = new ArrayList<>();
+        incomingRelationshipStatus.add(neutral);
+        outcomingRelationshipStatus.add(neutral);
+        List<Player> opponents = new ArrayList<>();
+        incomingRelationshipStatus.add(opponents);
+        outcomingRelationshipStatus.add(opponents);
+        List<Player> rivals = new ArrayList<>();
+        incomingRelationshipStatus.add(rivals);
+        outcomingRelationshipStatus.add(rivals);
+        List<Player> enemies = new ArrayList<>();
+        incomingRelationshipStatus.add(enemies);
+        outcomingRelationshipStatus.add(enemies);
+        System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        this.errorCheckIncomingRelationshipStatus();
     }
 
     public boolean setInitialRelations(List<Player> players, int v, int l) {
@@ -335,154 +355,68 @@ public class Player {
         this.influenceRemaining = influenceRemaining;
     }
 
-    /*
     public void updateInfluence() {
         int[] results = new int[2];
-        for (List<Player> list : this.incomingRelationshipStatus) {
-            list.clear();
-        }
+
+        // Clear current relationship statuses
+        this.clearRelationshipStatus();
+
         for (int i = 0; i < numPlayers; i++) {
             if (this.getPlayerIndex() != i) {
+                Player otherPlayer = this.playerArr[i];
                 if (this.inRelationships[i] >= 100) {
-                    this.incomingRelationshipStatus.get(0).add(this.playerArr[i]);
-                    this.playerArr[i].outcomingRelationshipStatus.get(0).add(this);
-                    if (this.playerArr[i].isEliminated()) {
-                        results[0] += 20;
-                        continue;
-                    }
-                    results[0] += 20;
-                    results[1] += 20;
+                    this.incomingRelationshipStatus.get(0).add(otherPlayer);
+                    otherPlayer.outcomingRelationshipStatus.get(0).add(this);
+                    updateResults(results, otherPlayer, 20);
                 } else if (this.inRelationships[i] >= 50) {
-                    this.incomingRelationshipStatus.get(1).add(this.playerArr[i]);
-                    this.playerArr[i].outcomingRelationshipStatus.get(1).add(this);
-                    if (this.playerArr[i].isEliminated()) {
-                        results[0] += 15;
-                        continue;
-                    }
-                    results[0] += 15;
-                    results[1] += 15;
+                    this.incomingRelationshipStatus.get(1).add(otherPlayer);
+                    otherPlayer.outcomingRelationshipStatus.get(1).add(this);
+                    updateResults(results, otherPlayer, 15);
                 } else if (this.inRelationships[i] >= 25) {
-                    this.incomingRelationshipStatus.get(2).add(this.playerArr[i]);
-                    this.playerArr[i].outcomingRelationshipStatus.get(2).add(this);
-                    if (this.playerArr[i].isEliminated()) {
-                        results[0] += 10;
-                        continue;
-                    }
-                    results[0] += 10;
-                    results[1] += 10;
+                    this.incomingRelationshipStatus.get(2).add(otherPlayer);
+                    otherPlayer.outcomingRelationshipStatus.get(2).add(this);
+                    updateResults(results, otherPlayer, 10);
                 } else if (this.inRelationships[i] <= -100) {
-                    this.incomingRelationshipStatus.get(6).add(this.playerArr[i]);
-                    this.playerArr[i].outcomingRelationshipStatus.get(6).add(this);
-                    if (this.playerArr[i].isEliminated()) {
-                        results[0] -= 20;
-                        continue;
-                    }
-                    results[0] -= 20;
-                    results[1] -= 20;
+                    this.incomingRelationshipStatus.get(6).add(otherPlayer);
+                    otherPlayer.outcomingRelationshipStatus.get(6).add(this);
+                    updateResults(results, otherPlayer, -20);
                 } else if (this.inRelationships[i] <= -50) {
-                    this.incomingRelationshipStatus.get(5).add(this.playerArr[i]);
-                    this.playerArr[i].outcomingRelationshipStatus.get(5).add(this);
-                    if (playerArr[i].isEliminated()) {
-                        results[0] -= 15;
-                        continue;
-                    }
-                    results[0] -= 15;
-                    results[1] -= 15;
+                    this.incomingRelationshipStatus.get(5).add(otherPlayer);
+                    otherPlayer.outcomingRelationshipStatus.get(5).add(this);
+                    updateResults(results, otherPlayer, -15);
                 } else if (this.inRelationships[i] <= -25) {
-                    this.incomingRelationshipStatus.get(4).add(this.playerArr[i]);
-                    this.playerArr[i].outcomingRelationshipStatus.get(4).add(this);
-                    if (this.playerArr[i].isEliminated()) {
-                        results[0] -= 10;
-                        continue;
-                    }
-                    results[0] -= 10;
-                    results[1] -= 10;
-                }
-                else {
-                    this.incomingRelationshipStatus.get(3).add(this.playerArr[i]);
-                    this.playerArr[i].outcomingRelationshipStatus.get(3).add(this);
+                    this.incomingRelationshipStatus.get(4).add(otherPlayer);
+                    otherPlayer.outcomingRelationshipStatus.get(4).add(this);
+                    updateResults(results, otherPlayer, -10);
+                } else {
+                    this.incomingRelationshipStatus.get(3).add(otherPlayer);
+                    otherPlayer.outcomingRelationshipStatus.get(3).add(this);
                 }
             }
+
         }
+        this.errorCheckIncomingRelationshipStatus();
         setInfluence(results[0]);
         setInfluenceRemaining(results[1]);
     }
 
-     */
 
-
-    public void updateInfluence() {
-        int totalInfluence = 0;
-        int totalInfluenceRemaining = 0;
-
-        for (List<Player> list : this.incomingRelationshipStatus) {
-            list.clear();
+    private void updateResults(int[] results, Player otherPlayer, int value) {
+        if (otherPlayer.isEliminated()) {
+            results[0] += value;
+        } else {
+            results[0] += value;
+            results[1] += value;
         }
-
-
-        for (int i = 0; i < numPlayers; i++) {
-            if (this.getPlayerIndex() == i) {
-                continue; // Skip self
-            }
-
-            int influenceDelta = 0;
-            int influenceRemainingDelta = 0;
-
-            if (this.inRelationships[i] >= 100) {
-                this.incomingRelationshipStatus.get(0).add(this.playerArr[i]);
-                this.playerArr[i].outcomingRelationshipStatus.get(0).add(this);
-                influenceDelta = 20;
-            } else if (this.inRelationships[i] >= 50) {
-                this.incomingRelationshipStatus.get(1).add(this.playerArr[i]);
-                this.playerArr[i].outcomingRelationshipStatus.get(1).add(this);
-                influenceDelta = 15;
-            } else if (this.inRelationships[i] >= 25) {
-                this.incomingRelationshipStatus.get(2).add(this.playerArr[i]);
-                this.playerArr[i].outcomingRelationshipStatus.get(2).add(this);
-                influenceDelta = 10;
-            } else if (this.inRelationships[i] <= -100) {
-                this.incomingRelationshipStatus.get(6).add(this.playerArr[i]);
-                this.playerArr[i].outcomingRelationshipStatus.get(6).add(this);
-                influenceDelta = -20;
-            } else if (this.inRelationships[i] <= -50) {
-                this.incomingRelationshipStatus.get(5).add(this.playerArr[i]);
-                this.playerArr[i].outcomingRelationshipStatus.get(5).add(this);
-                influenceDelta = -15;
-            } else if (this.inRelationships[i] <= -25) {
-                this.incomingRelationshipStatus.get(4).add(this.playerArr[i]);
-                this.playerArr[i].outcomingRelationshipStatus.get(4).add(this);
-                influenceDelta = -10;
-            } else {
-                this.incomingRelationshipStatus.get(3).add(this.playerArr[i]);
-                this.playerArr[i].outcomingRelationshipStatus.get(3).add(this);
-                continue;
-            }
-
-            if (this.playerArr[i].isEliminated()) {
-                influenceRemainingDelta = influenceDelta;
-            } else {
-                influenceRemainingDelta = influenceDelta;
-            }
-
-            totalInfluence += influenceDelta;
-            totalInfluenceRemaining += influenceRemainingDelta;
-        }
-
-        setInfluence(totalInfluence);
-        setInfluenceRemaining(totalInfluenceRemaining);
-    }
-
-
-
-    public void updateRelationships() {
-
     }
 
     public void clearRelationshipStatus() {
-        System.out.println("clearRelationshipStatus() incomingRelationshipStatus.size() " + incomingRelationshipStatus.size());
+        System.out.println("clearRelationshipStatus()");
         for (int i = 0; i < incomingRelationshipStatus.size(); i++) {
+
             incomingRelationshipStatus.get(i).clear();
             outcomingRelationshipStatus.get(i).clear();
+
         }
     }
 
@@ -490,19 +424,23 @@ public class Player {
         System.out.println(this.getName() + " incoming relationship status");
         System.out.println("this.incomingRelationshipStatus.get(3).size: " + this.incomingRelationshipStatus.get(3).size());
         for (int i = 0; i < incomingRelationshipStatus.size(); i++) {
-            System.out.println("incomingRelationshipStatus.get() " + i );
+            if (!incomingRelationshipStatus.get(i).isEmpty()) {
+                System.out.println("incomingRelationshipStatus.get() " + i );
+            }
             for (int k = 0; k < incomingRelationshipStatus.get(i).size(); k++) {
                 System.out.print(incomingRelationshipStatus.get(i).get(k).getName() + " ");
             }
-            System.out.println(" ");
+            if (!incomingRelationshipStatus.get(i).isEmpty()) {
+                System.out.println(" ");
+            }
         }
     }
 
     public void praisePlayer (Player player) {
-
         System.out.println(this.getName() + this.getRoundBorn() + " praises " + player.getName()+ player.getRoundBorn());
-        System.out.println("player.incomingRelationshipStatus.get(3).size: " + player.incomingRelationshipStatus.get(3).size());
+        this.errorCheckIncomingRelationshipStatus();
         player.printIncomingRelationshipStatus();
+        this.printIncomingRelationshipStatus();
         for (Player p: player.incomingRelationshipStatus.get(3)) {
             if (p != this) {
                 p.changeOpinionOf(player, 5);
@@ -553,9 +491,8 @@ public class Player {
     }
 
     public void criticizePlayer (Player player) {
-
         System.out.println(this.getName() + this.getRoundBorn() + " criticizes " + player.getName() + player.getRoundBorn());
-        System.out.println("player.incomingRelationshipStatus.get(3).size: " + player.incomingRelationshipStatus.get(3).size());
+        this.errorCheckIncomingRelationshipStatus();
         System.out.println("playerArr[player.getPlayerIndex()] == player");
         System.out.println(playerArr[player.getPlayerIndex()] == player);
         player.printIncomingRelationshipStatus();
@@ -620,5 +557,19 @@ public class Player {
     public int getRoundBorn() {
         return roundBorn;
     }
+
+    public boolean errorCheckIncomingRelationshipStatus() {
+        int sum = 0;
+        for (List<Player> relationshipStatus : incomingRelationshipStatus) {
+            sum += relationshipStatus.size();
+        }
+        if (sum != 9 && sum != 0) {
+            System.out.println("ERROR!!!");
+            System.out.println("sum = " + sum);
+            return  false;
+        }
+        return true;
+    }
 }
+
 

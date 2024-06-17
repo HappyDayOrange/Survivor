@@ -20,6 +20,7 @@ public class GameManager {
 
     public GameManager(int numPlayers) {
         this.setup(numPlayers);
+        this.createPlayerActionsList();
     }
 
     public GameManager(GameManager manager) {
@@ -40,8 +41,11 @@ public class GameManager {
             this.remainingPlayers.add(this.playerArr[i]);
         }
         this.humanPlayer = manager.humanPlayer;
-        this.playerActions = manager.playerActions;
+        createPlayerActionsList();
+        System.out.println("##############");
+        System.out.println("playerActions.size() " + playerActions.size());
         this.clearPlayerActions();
+        System.out.println("playerActions.size() " + playerActions.size());
         this.relationshipManager = new RelationshipManager(numPlayers, playerArr);
     }
 
@@ -63,28 +67,6 @@ public class GameManager {
         if (!relationshipManager.generateRelationships(playerList)) {
             setup(numPlayers);
         }
-        List<Player> action1 = new ArrayList<>();
-        playerActions.add(action1);
-        List<Player> action2 = new ArrayList<>();
-        playerActions.add(action2);
-        List<Player> action3 = new ArrayList<>();
-        playerActions.add(action3);
-        List<Player> action4 = new ArrayList<>();
-        playerActions.add(action4);
-        List<Player> action5 = new ArrayList<>();
-        playerActions.add(action5);
-        List<Player> action6 = new ArrayList<>();
-        playerActions.add(action6);
-        List<Player> action7 = new ArrayList<>();
-        playerActions.add(action7);
-        List<Player> action8 = new ArrayList<>();
-        playerActions.add(action8);
-        List<Player> action9 = new ArrayList<>();
-        playerActions.add(action9);
-        List<Player> action10 = new ArrayList<>();
-        playerActions.add(action10);
-        List<Player> action11 = new ArrayList<>();
-        playerActions.add(action11);
     }
 
     public void simulateRound() {
@@ -92,7 +74,7 @@ public class GameManager {
             playerArr[i].setNominations(0);
             playerArr[i].setVotes(0);
         }
-        this.updateRelationshipStatuses();
+
         if (this.roundNum == 0) {
             Player winner = this.selectFirstRoundLeader();
             winner.setPlacement(1);
@@ -120,7 +102,7 @@ public class GameManager {
                 System.out.println(player.getName() + " was born round number " + player.getRoundBorn());
             }
 
-
+            this.updateRelationshipStatuses();
             this.performPlayerActions();
             int[] nominees = voteForNominees(this.remainingPlayers);
             ArrayList<Player> nomineesAsList = new ArrayList<Player>();
@@ -137,6 +119,7 @@ public class GameManager {
             this.eliminatedPlayers.add(loser);
             this.roundNum++;
         }
+        this.updateRelationshipStatuses();
         this.clearPlayerActions();
     }
 
@@ -274,10 +257,23 @@ public class GameManager {
             Player praisedPlayer = playerActions.get(i).get(1);
             Player criticizedPlayer = playerActions.get(i).get(2);
 
-            System.out.println("Test!!!!");
-            System.out.println(player == playerArr[player.getPlayerIndex()]);
-            System.out.println(praisedPlayer == playerArr[praisedPlayer.getPlayerIndex()]);
-            System.out.println(criticizedPlayer == playerArr[criticizedPlayer.getPlayerIndex()]);
+            System.out.println("Performing actions for player: " + player.getName());
+            System.out.println("Praising player: " + praisedPlayer.getName());
+            System.out.println("Criticizing player: " + criticizedPlayer.getName());
+
+            // Debugging: Check relationship status before influence update
+            System.out.println("game ");
+            player.printIncomingRelationshipStatus();
+            praisedPlayer.printIncomingRelationshipStatus();
+            criticizedPlayer.printIncomingRelationshipStatus();
+
+            player.updateInfluence();
+
+            // Debugging: Check relationship status after influence update
+            System.out.println("After updateInfluence: ");
+            player.printIncomingRelationshipStatus();
+            praisedPlayer.printIncomingRelationshipStatus();
+            criticizedPlayer.printIncomingRelationshipStatus();
 
             player.praisePlayer(praisedPlayer);
             player.criticizePlayer(criticizedPlayer);
@@ -292,14 +288,18 @@ public class GameManager {
 
     public void setPlayerActions(Player player, Player praisedPlayer, Player criticizedPlayer) {
         int actingNum = player.getPlacement() - 1;
-        Player p = playerList.get(player.getPlayerIndex());
-        Player pp = playerList.get(praisedPlayer.getPlayerIndex());
-        Player cp = playerList.get(criticizedPlayer.getPlayerIndex());
+        Player p = playerArr[player.getPlayerIndex()];
+        Player pp = playerArr[praisedPlayer.getPlayerIndex()];
+        Player cp = playerArr[criticizedPlayer.getPlayerIndex()];
 
         System.out.println("TEST!!!!!!!!!!!!!!!!!!!!!");
-        for (int i = 0; i < numPlayers; i++) {
-            System.out.println(playerArr[i] == playerList.get(i));
-        }
+        System.out.println(player == playerArr[player.getPlayerIndex()]);
+        System.out.println(praisedPlayer == playerArr[praisedPlayer.getPlayerIndex()]);
+        System.out.println(criticizedPlayer == playerArr[criticizedPlayer.getPlayerIndex()]);
+
+        System.out.println(p == playerArr[player.getPlayerIndex()]);
+        System.out.println(pp == playerArr[praisedPlayer.getPlayerIndex()]);
+        System.out.println(cp == playerArr[criticizedPlayer.getPlayerIndex()]);
 
 
         playerActions.get(actingNum).add(p);
@@ -312,10 +312,10 @@ public class GameManager {
     }
 
     public void updateRelationshipStatuses() {
-        for (Player player : this.playerList) {
+        for (Player player : this.playerArr) {
             player.clearRelationshipStatus();
         }
-        for (Player player : this.playerList) {
+        for (Player player : this.playerArr) {
             player.updateRelationSums();
             //System.out.println(player.getName() + " Relationsum = " + player.getInRelationSum());
             player.updateInfluence();
@@ -323,6 +323,32 @@ public class GameManager {
             //System.out.println(player.getName() + " Influence= " + player.getInfluence());
             //System.out.println(player.getName() + " InfluenceRemaining= " + player.getInfluenceRemaining());
         }
+    }
+
+    public void createPlayerActionsList() {
+        System.out.println("CREATING PLAYER ACTIONS");
+        List<Player> action1 = new ArrayList<>();
+        playerActions.add(action1);
+        List<Player> action2 = new ArrayList<>();
+        playerActions.add(action2);
+        List<Player> action3 = new ArrayList<>();
+        playerActions.add(action3);
+        List<Player> action4 = new ArrayList<>();
+        playerActions.add(action4);
+        List<Player> action5 = new ArrayList<>();
+        playerActions.add(action5);
+        List<Player> action6 = new ArrayList<>();
+        playerActions.add(action6);
+        List<Player> action7 = new ArrayList<>();
+        playerActions.add(action7);
+        List<Player> action8 = new ArrayList<>();
+        playerActions.add(action8);
+        List<Player> action9 = new ArrayList<>();
+        playerActions.add(action9);
+        List<Player> action10 = new ArrayList<>();
+        playerActions.add(action10);
+        List<Player> action11 = new ArrayList<>();
+        playerActions.add(action11);
     }
 
 

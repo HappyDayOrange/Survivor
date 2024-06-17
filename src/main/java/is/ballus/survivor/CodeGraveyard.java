@@ -159,5 +159,145 @@ private int[] findFavorite(int[] pool) {
         generateRelationships(errorList);
     }
      */
+
+        /*
+    public void updateInfluence() {
+        int[] results = new int[2];
+        for (List<Player> list : this.incomingRelationshipStatus) {
+            list.clear();
+        }
+        for (int i = 0; i < numPlayers; i++) {
+            if (this.getPlayerIndex() != i) {
+                if (this.inRelationships[i] >= 100) {
+                    this.incomingRelationshipStatus.get(0).add(this.playerArr[i]);
+                    this.playerArr[i].outcomingRelationshipStatus.get(0).add(this);
+                    if (this.playerArr[i].isEliminated()) {
+                        results[0] += 20;
+                        continue;
+                    }
+                    results[0] += 20;
+                    results[1] += 20;
+                } else if (this.inRelationships[i] >= 50) {
+                    this.incomingRelationshipStatus.get(1).add(this.playerArr[i]);
+                    this.playerArr[i].outcomingRelationshipStatus.get(1).add(this);
+                    if (this.playerArr[i].isEliminated()) {
+                        results[0] += 15;
+                        continue;
+                    }
+                    results[0] += 15;
+                    results[1] += 15;
+                } else if (this.inRelationships[i] >= 25) {
+                    this.incomingRelationshipStatus.get(2).add(this.playerArr[i]);
+                    this.playerArr[i].outcomingRelationshipStatus.get(2).add(this);
+                    if (this.playerArr[i].isEliminated()) {
+                        results[0] += 10;
+                        continue;
+                    }
+                    results[0] += 10;
+                    results[1] += 10;
+                } else if (this.inRelationships[i] <= -100) {
+                    this.incomingRelationshipStatus.get(6).add(this.playerArr[i]);
+                    this.playerArr[i].outcomingRelationshipStatus.get(6).add(this);
+                    if (this.playerArr[i].isEliminated()) {
+                        results[0] -= 20;
+                        continue;
+                    }
+                    results[0] -= 20;
+                    results[1] -= 20;
+                } else if (this.inRelationships[i] <= -50) {
+                    this.incomingRelationshipStatus.get(5).add(this.playerArr[i]);
+                    this.playerArr[i].outcomingRelationshipStatus.get(5).add(this);
+                    if (playerArr[i].isEliminated()) {
+                        results[0] -= 15;
+                        continue;
+                    }
+                    results[0] -= 15;
+                    results[1] -= 15;
+                } else if (this.inRelationships[i] <= -25) {
+                    this.incomingRelationshipStatus.get(4).add(this.playerArr[i]);
+                    this.playerArr[i].outcomingRelationshipStatus.get(4).add(this);
+                    if (this.playerArr[i].isEliminated()) {
+                        results[0] -= 10;
+                        continue;
+                    }
+                    results[0] -= 10;
+                    results[1] -= 10;
+                }
+                else {
+                    this.incomingRelationshipStatus.get(3).add(this.playerArr[i]);
+                    this.playerArr[i].outcomingRelationshipStatus.get(3).add(this);
+                }
+            }
+        }
+        setInfluence(results[0]);
+        setInfluenceRemaining(results[1]);
+    }
+
+     */
+
+    /*
+
+    public void updateInfluence() {
+        int totalInfluence = 0;
+        int totalInfluenceRemaining = 0;
+
+        for (List<Player> list : this.incomingRelationshipStatus) {
+            list.clear();
+        }
+
+
+        for (int i = 0; i < numPlayers; i++) {
+            if (this.getPlayerIndex() == i) {
+                continue; // Skip self
+            }
+
+            int influenceDelta = 0;
+            int influenceRemainingDelta = 0;
+
+            if (this.inRelationships[i] >= 100) {
+                this.incomingRelationshipStatus.get(0).add(this.playerArr[i]);
+                this.playerArr[i].outcomingRelationshipStatus.get(0).add(this);
+                influenceDelta = 20;
+            } else if (this.inRelationships[i] >= 50) {
+                this.incomingRelationshipStatus.get(1).add(this.playerArr[i]);
+                this.playerArr[i].outcomingRelationshipStatus.get(1).add(this);
+                influenceDelta = 15;
+            } else if (this.inRelationships[i] >= 25) {
+                this.incomingRelationshipStatus.get(2).add(this.playerArr[i]);
+                this.playerArr[i].outcomingRelationshipStatus.get(2).add(this);
+                influenceDelta = 10;
+            } else if (this.inRelationships[i] <= -100) {
+                this.incomingRelationshipStatus.get(6).add(this.playerArr[i]);
+                this.playerArr[i].outcomingRelationshipStatus.get(6).add(this);
+                influenceDelta = -20;
+            } else if (this.inRelationships[i] <= -50) {
+                this.incomingRelationshipStatus.get(5).add(this.playerArr[i]);
+                this.playerArr[i].outcomingRelationshipStatus.get(5).add(this);
+                influenceDelta = -15;
+            } else if (this.inRelationships[i] <= -25) {
+                this.incomingRelationshipStatus.get(4).add(this.playerArr[i]);
+                this.playerArr[i].outcomingRelationshipStatus.get(4).add(this);
+                influenceDelta = -10;
+            } else {
+                this.incomingRelationshipStatus.get(3).add(this.playerArr[i]);
+                this.playerArr[i].outcomingRelationshipStatus.get(3).add(this);
+                continue;
+            }
+
+            if (this.playerArr[i].isEliminated()) {
+                influenceRemainingDelta = influenceDelta;
+            } else {
+                influenceRemainingDelta = influenceDelta;
+            }
+
+            totalInfluence += influenceDelta;
+            totalInfluenceRemaining += influenceRemainingDelta;
+        }
+
+        setInfluence(totalInfluence);
+        setInfluenceRemaining(totalInfluenceRemaining);
+    }
+
+     */
 }
 
