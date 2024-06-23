@@ -28,9 +28,19 @@ public class PlayerDetailsController {
     @FXML
     private TableColumn<Player, String> fxNameColumn;
     @FXML
-    private TableColumn<Player, Integer> fxIncommingOpinion;
+    private TableColumn<Player, Integer> fxIncomingOpinion;
     @FXML
     private TableColumn<Player, Integer> fxOutgoingOpinion;
+    @FXML
+    private TableColumn<Player, Player> fxFavoritePlayer;
+    @FXML
+    private TableColumn<Player, Integer> fxDifferenceFromFavorite;
+    @FXML
+    private TableColumn<Player, Player> fxChosenPlayer;
+    @FXML
+    private TableColumn<Player, Integer> fxDifferenceFromChosen;
+    @FXML
+    private TableColumn<Player, Integer> fxPlacement;
 
     private ObservableList<Player> otherPlayers;
     private ObservableList<Player> allPlayers;
@@ -41,14 +51,30 @@ public class PlayerDetailsController {
     @FXML
     public void initialize() {
         fxNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
-        fxIncommingOpinion.setCellValueFactory(cellData -> {
+        fxFavoritePlayer.setCellValueFactory(new PropertyValueFactory<>("favoriteRemainingPlayerAsString"));
+        fxChosenPlayer.setCellValueFactory(new PropertyValueFactory<>("chosenPlayerAsString"));
+        fxPlacement.setCellValueFactory(new PropertyValueFactory<>("placement"));
+
+        fxIncomingOpinion.setCellValueFactory(cellData -> {
             Player otherPlayer = cellData.getValue();
-            int relationshipValue = getIncommingOpinion(selectedPlayer, otherPlayer);
+            int relationshipValue = getIncomingOpinion(selectedPlayer, otherPlayer);
             return new ReadOnlyIntegerWrapper(relationshipValue).asObject();
         });
         fxOutgoingOpinion.setCellValueFactory(cellData -> {
             Player otherPlayer = cellData.getValue();
             int relationshipValue = getOutgoingOpinion(selectedPlayer, otherPlayer);
+            return new ReadOnlyIntegerWrapper(relationshipValue).asObject();
+        });
+
+        fxDifferenceFromFavorite.setCellValueFactory(cellData -> {
+            Player otherPlayer = cellData.getValue();
+            int relationshipValue = getDifferenceFromFavorite(selectedPlayer, otherPlayer);
+            return new ReadOnlyIntegerWrapper(relationshipValue).asObject();
+        });
+
+        fxDifferenceFromChosen.setCellValueFactory(cellData -> {
+            Player otherPlayer = cellData.getValue();
+            int relationshipValue = getDifferenceFromChosen(selectedPlayer, otherPlayer);
             return new ReadOnlyIntegerWrapper(relationshipValue).asObject();
         });
 
@@ -100,7 +126,7 @@ public class PlayerDetailsController {
         this.mainMenuController = mainMenuController;
     }
 
-    private int getIncommingOpinion(Player selectedPlayer, Player otherPlayer)
+    private int getIncomingOpinion(Player selectedPlayer, Player otherPlayer)
     {
         return selectedPlayer.getOpinionOfMe(otherPlayer);
     }
@@ -108,6 +134,16 @@ public class PlayerDetailsController {
     private int getOutgoingOpinion(Player selectedPlayer, Player otherPlayer)
     {
         return selectedPlayer.getOpinionOf(otherPlayer);
+    }
+
+    private int getDifferenceFromFavorite(Player selectedPlayer, Player otherPlayer)
+    {
+        return selectedPlayer.getDifferenceOfOpinionFromFavorite(otherPlayer);
+    }
+
+    private int getDifferenceFromChosen(Player selectedPlayer, Player otherPlayer)
+    {
+        return selectedPlayer.getDifferenceOfOpinionFromChosen(otherPlayer);
     }
 
     @FXML

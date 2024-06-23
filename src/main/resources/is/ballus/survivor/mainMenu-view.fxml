@@ -17,9 +17,9 @@
             <TableColumn fx:id="fxInfluence" prefWidth="75.0" text="Influence" />
             <TableColumn fx:id="fxInfluenceRemaining" prefWidth="75.0" text="InfluenceR" />
             <TableColumn fx:id="fxPlacement" prefWidth="75.0" text="Placement" />
-            <TableColumn fx:id="fxPlayerIndex" prefWidth="75.0" text="Player index" />
             <TableColumn fx:id="fxNominations" prefWidth="75.0" text="Nominations" />
             <TableColumn fx:id="fxVotes" prefWidth="75.0" text="Votes" />
+            <TableColumn fx:id="fxFinalVotes" prefWidth="75.0" text="Final Votes" />
             <TableColumn fx:id="fxEliminatedColumn" prefWidth="75.0" text="Eliminated" />
         </columns>
       </TableView>
@@ -31,9 +31,9 @@
             <TableColumn fx:id="fxInfluencePrediction" prefWidth="75.0" text="Influence" />
             <TableColumn fx:id="fxInfluenceRemainingPrediction" prefWidth="75.0" text="InfluenceR" />
             <TableColumn fx:id="fxPlacementPrediction" prefWidth="75.0" text="Placement" />
-            <TableColumn fx:id="fxPlayerIndexPrediction" prefWidth="75.0" text="Player index" />
             <TableColumn fx:id="fxNominationsPrediction" prefWidth="75.0" text="Nominations" />
             <TableColumn fx:id="fxVotesPrediction" prefWidth="75.0" text="Votes" />
+            <TableColumn fx:id="fxFinalVotesPrediction" prefWidth="75.0" text="Final Votes" />
             <TableColumn fx:id="fxEliminatedColumnPrediction" prefWidth="75.0" text="Eliminated" />
          </columns>
       </TableView>
@@ -49,9 +49,9 @@
             <TableColumn fx:id="fxInfluencePreview" prefWidth="75.0" text="Influence" />
             <TableColumn fx:id="fxInfluenceRemainingPreview" prefWidth="75.0" text="InfluenceR" />
             <TableColumn fx:id="fxPlacementPreview" prefWidth="75.0" text="Placement" />
-            <TableColumn fx:id="fxPlayerIndexPreview" prefWidth="75.0" text="Player index" />
             <TableColumn fx:id="fxNominationsPreview" prefWidth="75.0" text="Nominations" />
             <TableColumn fx:id="fxVotesPreview" prefWidth="75.0" text="Votes" />
+            <TableColumn fx:id="fxFinalVotesPreview" prefWidth="75.0" text="Final Votes" />
             <TableColumn fx:id="fxEliminatedColumnPreview" prefWidth="75.0" text="Eliminated" />
          </columns>
       </TableView>

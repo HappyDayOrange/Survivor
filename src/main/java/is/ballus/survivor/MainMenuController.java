@@ -30,7 +30,7 @@ public class MainMenuController {
     @FXML
     private TableColumn<Player, Integer> fxPlacement;
     @FXML
-    private TableColumn<Player, Integer> fxPlayerIndex;
+    private TableColumn<Player, Integer> fxFinalVotes;
     @FXML
     private TableColumn<Player, Integer> fxNominations;
     @FXML
@@ -51,7 +51,7 @@ public class MainMenuController {
     @FXML
     private TableColumn<Player, Integer> fxPlacementPrediction;
     @FXML
-    private TableColumn<Player, Integer> fxPlayerIndexPrediction;
+    private TableColumn<Player, Integer> fxFinalVotesPrediction;
     @FXML
     private TableColumn<Player, Integer> fxNominationsPrediction;
     @FXML
@@ -72,7 +72,7 @@ public class MainMenuController {
     @FXML
     private TableColumn<Player, Integer> fxPlacementPreview;
     @FXML
-    private TableColumn<Player, Integer> fxPlayerIndexPreview;;
+    private TableColumn<Player, Integer> fxFinalVotesPreview;;
     @FXML
     private TableColumn<Player, Integer> fxNominationsPreview;
     @FXML
@@ -123,10 +123,14 @@ public class MainMenuController {
         fxInfluence.setCellValueFactory(new PropertyValueFactory<>("influence"));
         fxInfluenceRemaining.setCellValueFactory(new PropertyValueFactory<>("influenceRemaining"));
         fxPlacement.setCellValueFactory(new PropertyValueFactory<>("placement"));
-        fxPlayerIndex.setCellValueFactory(new PropertyValueFactory<>("playerIndex"));
+        fxFinalVotes.setCellValueFactory(new PropertyValueFactory<>("finalVotes"));
         fxNominations.setCellValueFactory(new PropertyValueFactory<>("nominations"));
         fxVotes.setCellValueFactory(new PropertyValueFactory<>("votes"));
         fxEliminatedColumn.setCellValueFactory(new PropertyValueFactory<>("eliminated"));
+
+        // Sort by placement by default
+        fxPlacement.setSortType(TableColumn.SortType.ASCENDING); // or DESCENDING
+        fxTable.getSortOrder().add(fxPlacement);
 
         fxTable.setRowFactory(tv -> {
             TableRow<Player> row = new TableRow<>();
@@ -144,10 +148,14 @@ public class MainMenuController {
         fxInfluencePrediction.setCellValueFactory(new PropertyValueFactory<>("influence"));
         fxInfluenceRemainingPrediction.setCellValueFactory(new PropertyValueFactory<>("influenceRemaining"));
         fxPlacementPrediction.setCellValueFactory(new PropertyValueFactory<>("placement"));
-        fxPlayerIndexPrediction.setCellValueFactory(new PropertyValueFactory<>("playerIndex"));
+        fxFinalVotesPrediction.setCellValueFactory(new PropertyValueFactory<>("finalVotes"));
         fxNominationsPrediction.setCellValueFactory(new PropertyValueFactory<>("nominations"));
         fxVotesPrediction.setCellValueFactory(new PropertyValueFactory<>("votes"));
         fxEliminatedColumnPrediction.setCellValueFactory(new PropertyValueFactory<>("eliminated"));
+
+        // Sort by placement by default
+        fxPlacementPrediction.setSortType(TableColumn.SortType.ASCENDING); // or DESCENDING
+        fxTablePrediction.getSortOrder().add(fxPlacementPrediction);
 
         fxTablePrediction.setRowFactory(tv -> {
             TableRow<Player> row = new TableRow<>();
@@ -165,10 +173,14 @@ public class MainMenuController {
         fxInfluencePreview.setCellValueFactory(new PropertyValueFactory<>("influence"));
         fxInfluenceRemainingPreview.setCellValueFactory(new PropertyValueFactory<>("influenceRemaining"));
         fxPlacementPreview.setCellValueFactory(new PropertyValueFactory<>("placement"));
-        fxPlayerIndexPreview.setCellValueFactory(new PropertyValueFactory<>("playerIndex"));
+        fxFinalVotesPreview.setCellValueFactory(new PropertyValueFactory<>("finalVotes"));
         fxNominationsPreview.setCellValueFactory(new PropertyValueFactory<>("nominations"));
         fxVotesPreview.setCellValueFactory(new PropertyValueFactory<>("votes"));
         fxEliminatedColumnPreview.setCellValueFactory(new PropertyValueFactory<>("eliminated"));
+
+        // Sort by placement by default
+        fxPlacementPreview.setSortType(TableColumn.SortType.ASCENDING); // or DESCENDING
+        fxTablePreview.getSortOrder().add(fxPlacementPreview);
 
         fxTablePreview.setRowFactory(tv -> {
             TableRow<Player> row = new TableRow<>();
@@ -206,7 +218,9 @@ public class MainMenuController {
     public void simulateRound(ActionEvent event) {
         if (gameManagerPreview.remainingPlayers.size() > 1) {
             this.gameManagerPreview = new GameManager(gameManager);
-            this.gameManagerPreview.setPlayerActions(humanPlayer, praisedPlayer, criticizedPlayer);
+            if (praisedPlayer != null && criticizedPlayer != null) {
+                this.gameManagerPreview.setPlayerActions(humanPlayer, praisedPlayer, criticizedPlayer);
+            }
             this.gameManagerPreview.simulateRound();
         }
         this.setPlayers(gameManager.getPlayers(), gameManagerPrediction.getPlayers(), gameManagerPreview.getPlayers());
@@ -217,7 +231,9 @@ public class MainMenuController {
     @FXML
     public void endTurn(ActionEvent event) {
         if (gameManager.remainingPlayers.size() > 1) {
-            gameManager.setPlayerActions(humanPlayer, praisedPlayer, criticizedPlayer);
+            if (praisedPlayer != null && criticizedPlayer != null) {
+                gameManager.setPlayerActions(humanPlayer, praisedPlayer, criticizedPlayer);
+            }
             gameManager.simulateRound();
         }
         if (gameManagerPrediction.remainingPlayers.size() > 1) {

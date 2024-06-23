@@ -38,7 +38,11 @@ public class GameManager {
         for (int i = 0; i < numPlayers; i++) {
             this.playerArr[i] = new Player(manager.playerArr[i], roundNum, this.playerList, this.playerArr);
             this.playerList.add(this.playerArr[i]);
-            this.remainingPlayers.add(this.playerArr[i]);
+            if (this.playerArr[i].isEliminated()) {
+                this.eliminatedPlayers.add(this.playerArr[i]);
+            } else {
+                this.remainingPlayers.add(this.playerArr[i]);
+            }
         }
         this.humanPlayer = manager.humanPlayer;
         createPlayerActionsList();
@@ -69,6 +73,7 @@ public class GameManager {
         }
     }
 
+    /*
     public void simulateRound() {
         for (int i = 0; i < numPlayers; i++) {
             playerArr[i].setNominations(0);
@@ -103,6 +108,11 @@ public class GameManager {
             }
 
             this.updateRelationshipStatuses();
+            for (Player player: playerArr) {
+                player.errorCheckIncomingRelationshipStatus();
+                player.printIncomingRelationshipStatus();
+            }
+
             this.performPlayerActions();
             int[] nominees = voteForNominees(this.remainingPlayers);
             ArrayList<Player> nomineesAsList = new ArrayList<Player>();
@@ -120,7 +130,93 @@ public class GameManager {
             this.roundNum++;
         }
         this.updateRelationshipStatuses();
+
         this.clearPlayerActions();
+    }
+     */
+    public void simulateRound() {
+        resetNominationsAndVotes();
+
+        if (this.roundNum == 0) {
+            handleFirstRound();
+        } else if (this.remainingPlayers.size() == 2) {
+            handleFinalRound();
+        } else {
+            handleRegularRound();
+        }
+
+        this.updateRelationshipStatuses();
+        this.clearPlayerActions();
+    }
+
+    private void resetNominationsAndVotes() {
+        for (Player player : playerArr) {
+            player.setNominations(0);
+            player.setVotes(0);
+        }
+    }
+
+    private void handleFirstRound() {
+        Player winner = this.selectFirstRoundLeader();
+        winner.setPlacement(1);
+        ArrayList<Player> temp = new ArrayList<>(this.remainingPlayers);
+        temp.remove(winner);
+        winner.selectNextPlace(temp);
+        this.roundNum++;
+    }
+
+    private void handleFinalRound() {
+        System.out.println("Test");
+        this.performPlayerActions();
+        Player winner = election(this.playerList, this.remainingPlayers);
+        winner.setPlacement(1);
+        ArrayList<Player> temp = new ArrayList<>(this.remainingPlayers);
+        temp.remove(winner);
+        winner.selectNextPlace(temp);
+        eliminatePlayer(temp.get(0));
+        this.roundNum++;
+    }
+
+    private void handleRegularRound() {
+        logPlayerBirthRounds();
+        this.updateRelationshipStatuses();
+        errorCheckAndPrintStatus();
+
+        this.performPlayerActions();
+        int[] nominees = voteForNominees(this.remainingPlayers);
+        ArrayList<Player> nomineesAsList = new ArrayList<>();
+        nomineesAsList.add(this.playerArr[nominees[0]]);
+        nomineesAsList.add(this.playerArr[nominees[1]]);
+        Player winner = election(this.remainingPlayers, nomineesAsList);
+        winner.setPlacement(1);
+        ArrayList<Player> temp = new ArrayList<>(this.remainingPlayers);
+        temp.remove(winner);
+        winner.selectNextPlace(temp);
+        eliminatePlayer(temp.get(0));
+        this.roundNum++;
+    }
+
+    private void logPlayerBirthRounds() {
+        for (Player player : playerList) {
+            System.out.println(player.getName() + " was born round number " + player.getRoundBorn());
+        }
+        for (Player player : playerArr) {
+            System.out.println(player.getName() + " was born round number " + player.getRoundBorn());
+        }
+    }
+
+    private void errorCheckAndPrintStatus() {
+        for (Player player : playerArr) {
+            player.errorCheckIncomingRelationshipStatus();
+            player.printIncomingRelationshipStatus();
+        }
+    }
+
+    private void eliminatePlayer(Player loser) {
+        loser.eliminatePlayer();
+        System.out.println(loser.getName() + " is eliminated");
+        this.remainingPlayers.remove(loser);
+        this.eliminatedPlayers.add(loser);
     }
 
     public Player election(ArrayList<Player> players, ArrayList<Player> nominees) {
@@ -262,7 +358,7 @@ public class GameManager {
             System.out.println("Criticizing player: " + criticizedPlayer.getName());
 
             // Debugging: Check relationship status before influence update
-            System.out.println("game ");
+            System.out.println("Before updateInfluence: ");
             player.printIncomingRelationshipStatus();
             praisedPlayer.printIncomingRelationshipStatus();
             criticizedPlayer.printIncomingRelationshipStatus();
@@ -274,6 +370,10 @@ public class GameManager {
             player.printIncomingRelationshipStatus();
             praisedPlayer.printIncomingRelationshipStatus();
             criticizedPlayer.printIncomingRelationshipStatus();
+
+            player.updateInfluence();
+            praisedPlayer.updateInfluence();
+            criticizedPlayer.updateInfluence();
 
             player.praisePlayer(praisedPlayer);
             player.criticizePlayer(criticizedPlayer);
@@ -312,13 +412,20 @@ public class GameManager {
     }
 
     public void updateRelationshipStatuses() {
+        System.out.println("playerArr.length: " + playerArr.length);
         for (Player player : this.playerArr) {
             player.clearRelationshipStatus();
+            player.setFinalVotes(0);
+        }
+        for (Player player : this.playerArr) {
+            player.updateFavoriteRemainingPlayer(this.remainingPlayers);
         }
         for (Player player : this.playerArr) {
             player.updateRelationSums();
             //System.out.println(player.getName() + " Relationsum = " + player.getInRelationSum());
             player.updateInfluence();
+            player.updateDifferenceOfOpinionFromChosenPlayer();
+            player.updateDifferenceOfOpinionFromFavorite();
             player.printIncomingRelationshipStatus();
             //System.out.println(player.getName() + " Influence= " + player.getInfluence());
             //System.out.println(player.getName() + " InfluenceRemaining= " + player.getInfluenceRemaining());
