@@ -1,8 +1,185 @@
 package is.ballus.survivor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class CodeGraveyard
 
 {
+        /*
+    public boolean generateRelationships(ArrayList<Player> p) {
+        int v = -20;
+        int counter = 0;
+        for (int k = 0; k < numPlayers - 1; k++) {
+            int lastPlayerIndex = -1;
+            ArrayList<Player> tempList = new ArrayList<>(p);
+            while (!tempList.isEmpty()) {
+                if (!tempList.get(0).setInitialRelations(tempList, v, lastPlayerIndex)) {
+                    return false;
+                }
+                System.out.println(++counter);
+            }
+            System.out.println("Finished");
+            v += 5;
+        }
+        for (Player player : playerList) {
+            player.updateRelationSums();
+            System.out.println(player.getName() + " Relationsum= " + player.getInRelationSum());
+        }
+        for (int i = 0; i < numPlayers; i++) {
+            players[i].updateErrorListPlayers(p);
+        }
+        //generationNum++;
+        //System.out.println("Generation Number: " + generationNum);
+        updateErrorList();
+        printRelationships();
+        /*
+        if (generationNum <=2) {
+            fixErrors();
+        }
+        return true;
+    }
+     */
+
+    /*
+    public boolean setInitialRelations(List<Player> players, int v, int l) {
+        List<Player> tempList = new ArrayList<>(players);
+        tempList.removeAll(generateHelper);
+        if (tempList.isEmpty()) {
+            System.out.println("Error!");
+            addToErrorList(v);
+            numErrors++;
+            players.remove(this);
+            return false;
+        }
+        Player pick = tempList.get((int) (Math.random() * tempList.size()));
+        System.out.println(this.getName() + " picks: " + pick.getName());
+        players.remove(this);
+        players.remove(pick);
+        generateHelper.add(pick);
+        pick.generateHelper.add(this);
+        this.setOutRelationships(pick, v);
+        this.setInRelationships(pick, v);
+        pick.setOutRelationships(this, v);
+        pick.setInRelationships(this, v);
+        return true;
+    }
+     */
+        /*
+    public void simulateRound() {
+        for (int i = 0; i < numPlayers; i++) {
+            playerArr[i].setNominations(0);
+            playerArr[i].setVotes(0);
+        }
+
+        if (this.roundNum == 0) {
+            Player winner = this.selectFirstRoundLeader();
+            winner.setPlacement(1);
+            ArrayList<Player> temp = new ArrayList<>(this.remainingPlayers);
+            winner.selectNextPlace(temp);
+            this.roundNum++;
+        } else if (this.remainingPlayers.size() == 2) {
+            System.out.println("Test");
+            this.performPlayerActions();
+            Player winner = election(this.playerList, this.remainingPlayers);
+            winner.setPlacement(1);
+            ArrayList<Player> temp = new ArrayList<>(this.remainingPlayers);
+            winner.selectNextPlace(temp);
+            Player loser = temp.get(0);
+            loser.eliminatePlayer();
+            System.out.println(loser.getName() + " is eliminated");
+            this.remainingPlayers.remove(loser);
+            this.eliminatedPlayers.add(loser);
+            this.roundNum++;
+        } else {
+            for (Player player : playerList) {
+                System.out.println(player.getName() + " was born round number " + player.getRoundBorn());
+            }
+            for (Player player : playerArr) {
+                System.out.println(player.getName() + " was born round number " + player.getRoundBorn());
+            }
+
+            this.updateRelationshipStatuses();
+            for (Player player: playerArr) {
+                player.errorCheckIncomingRelationshipStatus();
+                player.printIncomingRelationshipStatus();
+            }
+
+            this.performPlayerActions();
+            int[] nominees = voteForNominees(this.remainingPlayers);
+            ArrayList<Player> nomineesAsList = new ArrayList<Player>();
+            nomineesAsList.add(this.playerArr[nominees[0]]);
+            nomineesAsList.add(this.playerArr[nominees[1]]);
+            Player winner = election(this.remainingPlayers, nomineesAsList);
+            winner.setPlacement(1);
+            ArrayList<Player> temp = new ArrayList<>(this.remainingPlayers);
+            winner.selectNextPlace(temp);
+            Player loser = temp.get(0);
+            loser.eliminatePlayer();
+            System.out.println(loser.getName() + " is eliminated");
+            this.remainingPlayers.remove(loser);
+            this.eliminatedPlayers.add(loser);
+            this.roundNum++;
+        }
+        this.updateRelationshipStatuses();
+
+        this.clearPlayerActions();
+    }
+     */
+
+        /*
+    public void updateInfluenceForMe() {
+        for (Player player: incomingRelationshipStatus.get(0) ) {
+            int myInfluence = this.influence - 20;
+            int myInfluenceRemaining = this.influenceRemaining - 20;
+            this.setInfluenceForMe(player, myInfluence);
+            this.setInfluenceForMeRemaining(player, myInfluenceRemaining);
+        }
+
+        for (Player player: incomingRelationshipStatus.get(1) ) {
+            int myInfluence = this.influence - 15;
+            int myInfluenceRemaining = this.influenceRemaining - 15;
+            this.setInfluenceForMe(player, myInfluence);
+            this.setInfluenceForMeRemaining(player, myInfluenceRemaining);
+        }
+
+        for (Player player: incomingRelationshipStatus.get(2) ) {
+            int myInfluence = this.influence - 10;
+            int myInfluenceRemaining = this.influenceRemaining - 10;
+            this.setInfluenceForMe(player, myInfluence);
+            this.setInfluenceForMeRemaining(player, myInfluenceRemaining);
+        }
+
+        for (Player player: incomingRelationshipStatus.get(6) ) {
+            int myInfluence = this.influence + 20;
+            int myInfluenceRemaining = this.influenceRemaining + 20;
+            this.setInfluenceForMe(player, myInfluence);
+            this.setInfluenceForMeRemaining(player, myInfluenceRemaining);
+        }
+
+        for (Player player: incomingRelationshipStatus.get(5) ) {
+            int myInfluence = this.influence + 15;
+            int myInfluenceRemaining = this.influenceRemaining + 15;
+            this.setInfluenceForMe(player, myInfluence);
+            this.setInfluenceForMeRemaining(player, myInfluenceRemaining);
+        }
+
+        for (Player player: incomingRelationshipStatus.get(4) ) {
+            int myInfluence = this.influence + 10;
+            int myInfluenceRemaining = this.influenceRemaining + 10;
+            this.setInfluenceForMe(player, myInfluence);
+            this.setInfluenceForMeRemaining(player, myInfluenceRemaining);
+        }
+
+        for (Player player: incomingRelationshipStatus.get(3) ) {
+            int myInfluence = this.influence;
+            int myInfluenceRemaining = this.influenceRemaining;
+            this.setInfluenceForMe(player, myInfluence);
+            this.setInfluenceForMeRemaining(player, myInfluenceRemaining);
+        }
+    }
+    */
+
     /*
 private void elimanteZeroVotes(int[] votes, int[] candidates, int[] pool) {
         /*

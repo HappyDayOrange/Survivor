@@ -14,8 +14,7 @@ public class SurvivorApplication extends Application {
         FXMLLoader fxmlLoader = new FXMLLoader(SurvivorApplication.class.getResource("mainMenu-view.fxml"));
         Parent root = fxmlLoader.load();
         MainMenuController controller = fxmlLoader.getController();
-        GameManager gameManager = new GameManager(10);
-        gameManager.simulateRound();
+        GameManager gameManager = new GameManager(11);
         GameManager gameManagerPrediction = new GameManager(gameManager);
         GameManager gameManagerPreview = new GameManager(gameManager);
         gameManagerPrediction.simulateRound();

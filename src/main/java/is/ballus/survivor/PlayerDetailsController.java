@@ -30,7 +30,11 @@ public class PlayerDetailsController {
     @FXML
     private TableColumn<Player, Integer> fxIncomingOpinion;
     @FXML
+    private TableColumn<Player, Integer> fxInOpinionChange;
+    @FXML
     private TableColumn<Player, Integer> fxOutgoingOpinion;
+    @FXML
+    private TableColumn<Player, Integer> fxOutOpinionChange;
     @FXML
     private TableColumn<Player, Player> fxFavoritePlayer;
     @FXML
@@ -41,6 +45,11 @@ public class PlayerDetailsController {
     private TableColumn<Player, Integer> fxDifferenceFromChosen;
     @FXML
     private TableColumn<Player, Integer> fxPlacement;
+    @FXML
+    private TableColumn<Player, Integer> fxInfluenceForMe;
+    @FXML
+    private TableColumn<Player, Integer> fxInfluenceForMeRemaining;
+
 
     private ObservableList<Player> otherPlayers;
     private ObservableList<Player> allPlayers;
@@ -60,9 +69,22 @@ public class PlayerDetailsController {
             int relationshipValue = getIncomingOpinion(selectedPlayer, otherPlayer);
             return new ReadOnlyIntegerWrapper(relationshipValue).asObject();
         });
+
+        fxOutOpinionChange.setCellValueFactory(cellData -> {
+            Player otherPlayer = cellData.getValue();
+            int relationshipValue = otherPlayer.getInRelationshipsChange(selectedPlayer);
+            return new ReadOnlyIntegerWrapper(relationshipValue).asObject();
+        });
+
         fxOutgoingOpinion.setCellValueFactory(cellData -> {
             Player otherPlayer = cellData.getValue();
             int relationshipValue = getOutgoingOpinion(selectedPlayer, otherPlayer);
+            return new ReadOnlyIntegerWrapper(relationshipValue).asObject();
+        });
+
+        fxInOpinionChange.setCellValueFactory(cellData -> {
+            Player otherPlayer = cellData.getValue();
+            int relationshipValue = otherPlayer.getOutRelationshipsChange(selectedPlayer);
             return new ReadOnlyIntegerWrapper(relationshipValue).asObject();
         });
 
@@ -75,6 +97,18 @@ public class PlayerDetailsController {
         fxDifferenceFromChosen.setCellValueFactory(cellData -> {
             Player otherPlayer = cellData.getValue();
             int relationshipValue = getDifferenceFromChosen(selectedPlayer, otherPlayer);
+            return new ReadOnlyIntegerWrapper(relationshipValue).asObject();
+        });
+
+        fxInfluenceForMe.setCellValueFactory(cellData -> {
+            Player otherPlayer = cellData.getValue();
+            int relationshipValue = otherPlayer.getInfluenceForMe(selectedPlayer);
+            return new ReadOnlyIntegerWrapper(relationshipValue).asObject();
+        });
+
+        fxInfluenceForMeRemaining.setCellValueFactory(cellData -> {
+            Player otherPlayer = cellData.getValue();
+            int relationshipValue = otherPlayer.getInfluenceForMeRemaining(selectedPlayer);
             return new ReadOnlyIntegerWrapper(relationshipValue).asObject();
         });
 

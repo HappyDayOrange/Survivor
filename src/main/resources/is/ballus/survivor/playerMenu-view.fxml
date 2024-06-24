@@ -9,15 +9,19 @@
 <Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="980.0" prefWidth="1880.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="is.ballus.survivor.PlayerDetailsController">
    <children>
       <Label fx:id="fxNameLabel" layoutX="474.0" layoutY="30.0" text="Player" />
-      <TableView fx:id="fxTable" layoutX="190.0" layoutY="76.0" prefHeight="424.0" prefWidth="603.0">
+      <TableView fx:id="fxTable" layoutX="190.0" layoutY="76.0" prefHeight="424.0" prefWidth="1102.0">
         <columns>
           <TableColumn fx:id="fxNameColumn" prefWidth="75.0" text="name" />
             <TableColumn fx:id="fxIncomingOpinion" prefWidth="75.0" text="His Opinion" />
+            <TableColumn fx:id="fxInOpinionChange" prefWidth="75.0" text="Change" />
           <TableColumn fx:id="fxOutgoingOpinion" prefWidth="75.0" text="My Opinion" />
+            <TableColumn fx:id="fxOutOpinionChange" prefWidth="75.0" text="Change" />
             <TableColumn fx:id="fxFavoritePlayer" prefWidth="75.0" text="Favorite" />
             <TableColumn fx:id="fxDifferenceFromFavorite" prefWidth="75.0" text="Difference" />
             <TableColumn fx:id="fxChosenPlayer" prefWidth="75.0" text="Chose" />
             <TableColumn fx:id="fxDifferenceFromChosen" prefWidth="75.0" text="Difference" />
+            <TableColumn fx:id="fxInfluenceForMe" prefWidth="75.0" text="Influence" />
+            <TableColumn fx:id="fxInfluenceForMeRemaining" prefWidth="75.0" text="InfluenceR" />
             <TableColumn fx:id="fxPlacement" prefWidth="75.0" text="Placement" />
         </columns>
       </TableView>

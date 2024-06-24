@@ -14,6 +14,7 @@ public class GameManager {
     public int[] winners;
     public Settings settings;
     private Player humanPlayer;
+    private Player firstRoundWinner;
     int generationNum = 0;
     int roundNum = 0;
     private List<List<Player>> playerActions = new ArrayList<>();
@@ -51,11 +52,15 @@ public class GameManager {
         this.clearPlayerActions();
         System.out.println("playerActions.size() " + playerActions.size());
         this.relationshipManager = new RelationshipManager(numPlayers, playerArr);
+        this.firstRoundWinner = playerArr[manager.firstRoundWinner.getPlayerIndex()];
     }
 
     public void setup(int numPlayers) {
         generationNum++;
         System.out.println("Generation number: " + generationNum);
+        if (generationNum == 1000) {
+            return;
+        }
         this.settings = new Settings();
         this.playerArr = new Player[numPlayers];
         this.numPlayers = numPlayers;
@@ -71,71 +76,12 @@ public class GameManager {
         if (!relationshipManager.generateRelationships(playerList)) {
             setup(numPlayers);
         }
+        this.firstRoundWinner = this.selectFirstRoundLeader();
     }
 
-    /*
-    public void simulateRound() {
-        for (int i = 0; i < numPlayers; i++) {
-            playerArr[i].setNominations(0);
-            playerArr[i].setVotes(0);
-        }
-
-        if (this.roundNum == 0) {
-            Player winner = this.selectFirstRoundLeader();
-            winner.setPlacement(1);
-            ArrayList<Player> temp = new ArrayList<>(this.remainingPlayers);
-            winner.selectNextPlace(temp);
-            this.roundNum++;
-        } else if (this.remainingPlayers.size() == 2) {
-            System.out.println("Test");
-            this.performPlayerActions();
-            Player winner = election(this.playerList, this.remainingPlayers);
-            winner.setPlacement(1);
-            ArrayList<Player> temp = new ArrayList<>(this.remainingPlayers);
-            winner.selectNextPlace(temp);
-            Player loser = temp.get(0);
-            loser.eliminatePlayer();
-            System.out.println(loser.getName() + " is eliminated");
-            this.remainingPlayers.remove(loser);
-            this.eliminatedPlayers.add(loser);
-            this.roundNum++;
-        } else {
-            for (Player player : playerList) {
-                System.out.println(player.getName() + " was born round number " + player.getRoundBorn());
-            }
-            for (Player player : playerArr) {
-                System.out.println(player.getName() + " was born round number " + player.getRoundBorn());
-            }
-
-            this.updateRelationshipStatuses();
-            for (Player player: playerArr) {
-                player.errorCheckIncomingRelationshipStatus();
-                player.printIncomingRelationshipStatus();
-            }
-
-            this.performPlayerActions();
-            int[] nominees = voteForNominees(this.remainingPlayers);
-            ArrayList<Player> nomineesAsList = new ArrayList<Player>();
-            nomineesAsList.add(this.playerArr[nominees[0]]);
-            nomineesAsList.add(this.playerArr[nominees[1]]);
-            Player winner = election(this.remainingPlayers, nomineesAsList);
-            winner.setPlacement(1);
-            ArrayList<Player> temp = new ArrayList<>(this.remainingPlayers);
-            winner.selectNextPlace(temp);
-            Player loser = temp.get(0);
-            loser.eliminatePlayer();
-            System.out.println(loser.getName() + " is eliminated");
-            this.remainingPlayers.remove(loser);
-            this.eliminatedPlayers.add(loser);
-            this.roundNum++;
-        }
-        this.updateRelationshipStatuses();
-
-        this.clearPlayerActions();
-    }
-     */
     public void simulateRound() {
         resetNominationsAndVotes();
+        resetRelationshipChange();
 
         if (this.roundNum == 0) {
             handleFirstRound();
@@ -149,6 +95,12 @@ public class GameManager {
         this.clearPlayerActions();
     }
 
+    private void resetRelationshipChange() {
+        for (Player player : playerArr) {
+            player.resetRelationshipsChange();
+        }
+    }
+
     private void resetNominationsAndVotes() {
         for (Player player : playerArr) {
             player.setNominations(0);
@@ -157,11 +109,10 @@ public class GameManager {
     }
 
     private void handleFirstRound() {
-        Player winner = this.selectFirstRoundLeader();
-        winner.setPlacement(1);
+        firstRoundWinner.setPlacement(1);
         ArrayList<Player> temp = new ArrayList<>(this.remainingPlayers);
-        temp.remove(winner);
-        winner.selectNextPlace(temp);
+        temp.remove(firstRoundWinner);
+        firstRoundWinner.selectNextPlace(temp);
         this.roundNum++;
     }
 
@@ -424,6 +375,7 @@ public class GameManager {
             player.updateRelationSums();
             //System.out.println(player.getName() + " Relationsum = " + player.getInRelationSum());
             player.updateInfluence();
+            player.updateInfluenceForMe();
             player.updateDifferenceOfOpinionFromChosenPlayer();
             player.updateDifferenceOfOpinionFromFavorite();
             player.printIncomingRelationshipStatus();
