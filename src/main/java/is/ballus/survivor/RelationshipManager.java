@@ -17,6 +17,7 @@ public class RelationshipManager {
     private int errorCounter = 0;
 
     public RelationshipManager(int size, Player[] players) {
+        generationNum++;
         this.relationshipArray = new int[size][size];
         this.relationshipArrayHistory = new int[size][][];
         this.numPlayers = size;
@@ -90,6 +91,7 @@ public class RelationshipManager {
         }
         updateErrorList();
         printRelationships();
+        System.out.println("SUCCESS!!!");
         return true;
     }
 

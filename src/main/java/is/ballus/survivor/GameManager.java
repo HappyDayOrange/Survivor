@@ -58,7 +58,7 @@ public class GameManager {
     public void setup(int numPlayers) {
         generationNum++;
         System.out.println("Generation number: " + generationNum);
-        if (generationNum == 1000) {
+        if (generationNum == 10000) {
             return;
         }
         this.settings = new Settings();
@@ -129,9 +129,11 @@ public class GameManager {
     }
 
     private void handleRegularRound() {
+        /*
         logPlayerBirthRounds();
         this.updateRelationshipStatuses();
         errorCheckAndPrintStatus();
+         */
 
         this.performPlayerActions();
         int[] nominees = voteForNominees(this.remainingPlayers);
@@ -158,7 +160,7 @@ public class GameManager {
 
     private void errorCheckAndPrintStatus() {
         for (Player player : playerArr) {
-            player.errorCheckIncomingRelationshipStatus();
+            player.errorCheckRelationshipStatus();
             player.printIncomingRelationshipStatus();
         }
     }
@@ -314,7 +316,6 @@ public class GameManager {
             praisedPlayer.printIncomingRelationshipStatus();
             criticizedPlayer.printIncomingRelationshipStatus();
 
-            player.updateInfluence();
 
             // Debugging: Check relationship status after influence update
             System.out.println("After updateInfluence: ");
@@ -322,9 +323,8 @@ public class GameManager {
             praisedPlayer.printIncomingRelationshipStatus();
             criticizedPlayer.printIncomingRelationshipStatus();
 
-            player.updateInfluence();
-            praisedPlayer.updateInfluence();
-            criticizedPlayer.updateInfluence();
+            clearRelationshipStatusesOfAllPlayers();
+            updateRelationshipStatuses();
 
             player.praisePlayer(praisedPlayer);
             player.criticizePlayer(criticizedPlayer);
@@ -336,6 +336,13 @@ public class GameManager {
             playerAction.clear();
         }
     }
+
+    public void clearRelationshipStatusesOfAllPlayers() {
+        for (Player player : this.playerArr) {
+            player.clearRelationshipStatus();
+        }
+    }
+
 
     public void setPlayerActions(Player player, Player praisedPlayer, Player criticizedPlayer) {
         int actingNum = player.getPlacement() - 1;
@@ -364,8 +371,8 @@ public class GameManager {
 
     public void updateRelationshipStatuses() {
         System.out.println("playerArr.length: " + playerArr.length);
+        clearRelationshipStatusesOfAllPlayers();
         for (Player player : this.playerArr) {
-            player.clearRelationshipStatus();
             player.setFinalVotes(0);
         }
         for (Player player : this.playerArr) {
@@ -375,12 +382,16 @@ public class GameManager {
             player.updateRelationSums();
             //System.out.println(player.getName() + " Relationsum = " + player.getInRelationSum());
             player.updateInfluence();
-            player.updateInfluenceForMe();
             player.updateDifferenceOfOpinionFromChosenPlayer();
             player.updateDifferenceOfOpinionFromFavorite();
-            player.printIncomingRelationshipStatus();
             //System.out.println(player.getName() + " Influence= " + player.getInfluence());
             //System.out.println(player.getName() + " InfluenceRemaining= " + player.getInfluenceRemaining());
+        }
+        for (Player player : this.playerArr) {
+            player.updateInfluenceForMe();
+            System.out.println("Error checking");
+            player.errorCheckRelationshipStatus();
+            player.printOutcomingRelationshipStatus();
         }
     }
 
