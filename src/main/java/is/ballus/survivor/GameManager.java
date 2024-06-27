@@ -19,8 +19,8 @@ public class GameManager {
     int roundNum = 0;
     private List<List<Player>> playerActions = new ArrayList<>();
 
-    public GameManager(int numPlayers) {
-        this.setup(numPlayers);
+    public GameManager(Settings settings) {
+        this.setup(settings);
         this.createPlayerActionsList();
     }
 
@@ -55,16 +55,15 @@ public class GameManager {
         this.firstRoundWinner = playerArr[manager.firstRoundWinner.getPlayerIndex()];
     }
 
-    public void setup(int numPlayers) {
+    public void setup(Settings settings) {
         generationNum++;
         System.out.println("Generation number: " + generationNum);
         if (generationNum == 10000) {
             return;
         }
         this.settings = new Settings();
+        this.numPlayers = settings.getNumPLayers();
         this.playerArr = new Player[numPlayers];
-        this.numPlayers = numPlayers;
-
         for (int i = 0; i < numPlayers; i++) {
             this.playerArr[i] = new Player(i, numPlayers, roundNum, settings, playerList, playerArr);
         }
@@ -74,7 +73,7 @@ public class GameManager {
         this.eliminatedPlayers = new ArrayList<Player>();
         this.relationshipManager = new RelationshipManager(numPlayers, playerArr);
         if (!relationshipManager.generateRelationships(playerList)) {
-            setup(numPlayers);
+            setup(settings);
         }
         this.firstRoundWinner = this.selectFirstRoundLeader();
     }
@@ -82,6 +81,11 @@ public class GameManager {
     public void simulateRound() {
         resetNominationsAndVotes();
         resetRelationshipChange();
+        clearPlayerPicks();
+        if (this.roundNum == 0) {
+            this.playersPickingActions();
+        }
+        this.performPlayerActions();
 
         if (this.roundNum == 0) {
             handleFirstRound();
@@ -93,6 +97,7 @@ public class GameManager {
 
         this.updateRelationshipStatuses();
         this.clearPlayerActions();
+        this.playersPickingActions();
     }
 
     private void resetRelationshipChange() {
@@ -118,7 +123,6 @@ public class GameManager {
 
     private void handleFinalRound() {
         System.out.println("Test");
-        this.performPlayerActions();
         Player winner = election(this.playerList, this.remainingPlayers);
         winner.setPlacement(1);
         ArrayList<Player> temp = new ArrayList<>(this.remainingPlayers);
@@ -134,8 +138,6 @@ public class GameManager {
         this.updateRelationshipStatuses();
         errorCheckAndPrintStatus();
          */
-
-        this.performPlayerActions();
         int[] nominees = voteForNominees(this.remainingPlayers);
         ArrayList<Player> nomineesAsList = new ArrayList<>();
         nomineesAsList.add(this.playerArr[nominees[0]]);
@@ -293,6 +295,14 @@ public class GameManager {
         return this.playerArr;
     }
 
+    public ArrayList<Player> getPlayerList() {
+        return this.playerList;
+    }
+
+    public ArrayList<Player> getRemainingPlayers() {
+        return this.remainingPlayers;
+    }
+
     public void praisePlayer (Player PraisingPlayer, Player PraisedPlayer) {
         PraisingPlayer.praisePlayer(PraisedPlayer);
     }
@@ -334,6 +344,12 @@ public class GameManager {
     public void clearPlayerActions() {
         for (List<Player> playerAction : playerActions) {
             playerAction.clear();
+        }
+    }
+
+    public void clearPlayerPicks() {
+        for (Player player : playerArr) {
+            player.clearPicks();
         }
     }
 
@@ -421,14 +437,22 @@ public class GameManager {
         playerActions.add(action11);
     }
 
+    public void playersPickingActions() {
+        for (Player player : remainingPlayers) {
+            Player[] picks = player.pickPlayers();
+            if (picks == null) {
+                continue;
+            }
+            this.setPlayerActions(player, picks[0], picks[1]);
+        }
+    }
+
 
     public static void main(String[] args) {
         int[] numbeOfElectionWinners = new int[11];
 
         for (int i = 0; i < 1; i++) {
             int count = 0;
-            GameManager gamemanager = new GameManager(10);
-            System.out.println("Successful generation number: " + gamemanager.generationNum);
             /*
             System.out.println(Arrays.toString(gamemanager.winners));
             for (int k = 0; k < 10; k++) {

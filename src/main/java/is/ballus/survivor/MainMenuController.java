@@ -37,6 +37,11 @@ public class MainMenuController {
     private TableColumn<Player, Integer> fxVotes;
     @FXML
     private TableColumn<Player, Boolean> fxEliminatedColumn;
+    @FXML
+    private TableColumn<Player, String> fxPraisedPlayer;
+    @FXML
+    private TableColumn<Player, String> fxCriticizedPlayer;
+
 
     @FXML
     private TableView<Player> fxTablePrediction;
@@ -79,6 +84,10 @@ public class MainMenuController {
     private TableColumn<Player, Integer> fxVotesPreview;
     @FXML
     private TableColumn<Player, Boolean> fxEliminatedColumnPreview;
+    @FXML
+    private TableColumn<Player, String> fxPraisedPlayerPreview;
+    @FXML
+    private TableColumn<Player, String> fxCriticizedPlayerPreview;
 
     @FXML
     private Label fxPraiseLabel;
@@ -95,6 +104,7 @@ public class MainMenuController {
     private Player humanPlayer;
     private Player praisedPlayer;
     private Player criticizedPlayer;
+    private GameController gameController;
 
     public void setPlayers(Player[] players, Player[] playersPrediction, Player[] playersPreview) {
         this.playerList = FXCollections.observableArrayList(players);
@@ -110,6 +120,11 @@ public class MainMenuController {
         this.gameManagerPrediction = managerPrediction;
         this.gameManagerPreview = previewManager;
         this.humanPlayer = manager.getHumanPlayer();
+
+    }
+
+    public void setGameController(GameController gameController) {
+        this.gameController = gameController;
     }
 
     public void saveScene(Scene s) {
@@ -127,6 +142,8 @@ public class MainMenuController {
         fxNominations.setCellValueFactory(new PropertyValueFactory<>("nominations"));
         fxVotes.setCellValueFactory(new PropertyValueFactory<>("votes"));
         fxEliminatedColumn.setCellValueFactory(new PropertyValueFactory<>("eliminated"));
+        fxPraisedPlayer.setCellValueFactory(new PropertyValueFactory<>("praisedPlayerAsString"));
+        fxCriticizedPlayer.setCellValueFactory(new PropertyValueFactory<>("criticizedPlayerAsString"));
 
         // Sort by placement by default
         fxPlacement.setSortType(TableColumn.SortType.ASCENDING); // or DESCENDING
@@ -177,6 +194,8 @@ public class MainMenuController {
         fxNominationsPreview.setCellValueFactory(new PropertyValueFactory<>("nominations"));
         fxVotesPreview.setCellValueFactory(new PropertyValueFactory<>("votes"));
         fxEliminatedColumnPreview.setCellValueFactory(new PropertyValueFactory<>("eliminated"));
+        fxPraisedPlayerPreview.setCellValueFactory(new PropertyValueFactory<>("praisedPlayer"));
+        fxCriticizedPlayerPreview.setCellValueFactory(new PropertyValueFactory<>("criticizedPlayer"));
 
         // Sort by placement by default
         fxPlacementPreview.setSortType(TableColumn.SortType.ASCENDING); // or DESCENDING
@@ -215,35 +234,13 @@ public class MainMenuController {
     }
 
     @FXML
-    public void simulateRound(ActionEvent event) {
-        if (gameManagerPreview.remainingPlayers.size() > 1) {
-            this.gameManagerPreview = new GameManager(gameManager);
-            if (praisedPlayer != null && criticizedPlayer != null) {
-                this.gameManagerPreview.setPlayerActions(humanPlayer, praisedPlayer, criticizedPlayer);
-            }
-            this.gameManagerPreview.simulateRound();
-        }
-        this.setPlayers(gameManager.getPlayers(), gameManagerPrediction.getPlayers(), gameManagerPreview.getPlayers());
-        this.setGameManagers(gameManager, gameManagerPrediction, gameManagerPreview);
-        reloadData();
+    public void simulateRound() {
+        gameController.simulateRound(humanPlayer, praisedPlayer, criticizedPlayer);
     }
 
     @FXML
-    public void endTurn(ActionEvent event) {
-        if (gameManager.remainingPlayers.size() > 1) {
-            if (praisedPlayer != null && criticizedPlayer != null) {
-                gameManager.setPlayerActions(humanPlayer, praisedPlayer, criticizedPlayer);
-            }
-            gameManager.simulateRound();
-        }
-        if (gameManagerPrediction.remainingPlayers.size() > 1) {
-            this.gameManagerPrediction = new GameManager(gameManager);
-            gameManagerPrediction.simulateRound();
-        }
-        this.gameManagerPreview = new GameManager(gameManager);
-        this.setPlayers(gameManager.getPlayers(), gameManagerPrediction.getPlayers(), gameManagerPreview.getPlayers());
-        this.setGameManagers(gameManager, gameManagerPrediction, gameManagerPreview);
-        reloadData();
+    public void endTurn() {
+        gameController.endTurn(humanPlayer, praisedPlayer, criticizedPlayer);
     }
 
     public void reloadData() {

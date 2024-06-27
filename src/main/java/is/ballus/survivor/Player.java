@@ -9,6 +9,9 @@ import java.util.stream.IntStream;
 
 public class Player {
     public int playerIndex;
+    public boolean isReal = false;
+    public boolean isHuman = false;
+    public AIOverallStrategy strategy;
     private int roundBorn;
     private BooleanProperty eliminated = new SimpleBooleanProperty(false);
     private int numPlayers;
@@ -41,12 +44,15 @@ public class Player {
     private Player secondFavoriteRemainingPlayer;
     private Player chosenPlayer;
     private Player closestFromBeingChosen;
+    private Player praisedPlayer;
+    private Player criticizedPlayer;
     private boolean[] hasBeenPickedAsNumber = new boolean[9];
 
 
 
     public Player(int index, int numPlayers, int roundNum, Settings settings, ArrayList<Player> playerList, Player[] playerArr) {
         this.playerIndex = index;
+        this.isReal = true;
         this.roundBorn = roundNum;
         this.playerList = playerList;
         this.playerArr = playerArr;
@@ -310,7 +316,7 @@ public class Player {
     }
 
     public int findFavorite(ArrayList<Player> players) {
-        int max = -1000;
+        int max = -10000;
         int maxPlayerIndex = 0;
         for (int i = 0; i < players.size(); i++) {
             int playeridx = players.get(i).getPlayerIndex();
@@ -553,6 +559,7 @@ public class Player {
 
     public void praisePlayer (Player player) {
         System.out.println(this.getName() + this.getRoundBorn() + " praises " + player.getName()+ player.getRoundBorn());
+        this.praisedPlayer = player;
         this.errorCheckRelationshipStatus();
         player.errorCheckRelationshipStatus();
         player.printIncomingRelationshipStatus();
@@ -611,6 +618,7 @@ public class Player {
 
     public void criticizePlayer (Player player) {
         System.out.println(this.getName() + this.getRoundBorn() + " criticizes " + player.getName() + player.getRoundBorn());
+        this.criticizedPlayer = player;
         this.errorCheckRelationshipStatus();
         player.errorCheckRelationshipStatus();
         System.out.println("playerArr[player.getPlayerIndex()] == player");
@@ -669,14 +677,14 @@ public class Player {
     }
 
     public boolean canPraise(Player player) {
-        if (this.isEliminated()) {
+        if (this.isEliminated() || player == this) {
             return false;
         }
         return this.outRelationships[player.getPlayerIndex()] >= 0;
     }
 
     public boolean canCriticize(Player player) {
-        if (this.isEliminated()) {
+        if (this.isEliminated() || player == this) {
             return false;
         }
         return this.outRelationships[player.getPlayerIndex()] <= 0;
@@ -833,6 +841,52 @@ public class Player {
 
     public void setHasBeenPickedAsNumber(int index) {
         this.hasBeenPickedAsNumber[index] = true;
+    }
+
+    public Player[] pickPlayers() {
+        if (isReal && !isHuman) {
+            return this.strategy.pickPlayers();
+        }
+        return null;
+    }
+
+    public void setStrategy(AIOverallStrategy strategy) {
+        this.strategy = strategy;
+    }
+
+    public Player getPraisedPlayer() {
+        return praisedPlayer;
+    }
+
+    public String getPraisedPlayerAsString() {
+        if (this.praisedPlayer != null) {
+            return praisedPlayer.getName();
+        }
+        return "";
+    }
+
+    public void setPraisedPlayer(Player praisedPlayer) {
+        this.praisedPlayer = praisedPlayer;
+    }
+
+    public Player getCriticizedPlayer() {
+        return criticizedPlayer;
+    }
+
+    public String getCriticizedPlayerAsString() {
+        if (this.criticizedPlayer != null) {
+            return criticizedPlayer.getName();
+        }
+        return "";
+    }
+
+    public void setCriticizedPlayer(Player criticizedPlayer) {
+        this.criticizedPlayer = criticizedPlayer;
+    }
+
+    public void clearPicks() {
+        this.setPraisedPlayer(null);
+        this.setCriticizedPlayer(null);
     }
 }
 

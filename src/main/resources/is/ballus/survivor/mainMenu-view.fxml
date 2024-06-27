@@ -10,7 +10,7 @@
    <children>
       <Button fx:id="fxSimulateRoundButton" layoutX="401.0" layoutY="653.0" mnemonicParsing="false" onAction="#simulateRound" text="SimulateRound" />
       <Label layoutX="262.0" layoutY="30.0" text="Players" />
-      <TableView fx:id="fxTable" layoutX="84.0" layoutY="54.0" prefHeight="379.0" prefWidth="799.0">
+      <TableView fx:id="fxTable" layoutX="84.0" layoutY="54.0" prefHeight="379.0" prefWidth="850.0">
         <columns>
           <TableColumn fx:id="fxNameColumn" prefWidth="75.0" text="name" />
           <TableColumn fx:id="fxOverallOpinionColumn" prefWidth="75.0" text="Overall Opinion" />
@@ -21,10 +21,12 @@
             <TableColumn fx:id="fxVotes" prefWidth="75.0" text="Votes" />
             <TableColumn fx:id="fxFinalVotes" prefWidth="75.0" text="Final Votes" />
             <TableColumn fx:id="fxEliminatedColumn" prefWidth="75.0" text="Eliminated" />
+            <TableColumn fx:id="fxPraisedPlayer" prefWidth="75.0" text="Praised" />
+            <TableColumn fx:id="fxCriticizedPlayer" prefWidth="75.0" text="Criticicized" />
         </columns>
       </TableView>
       <Label layoutX="1312.0" layoutY="30.0" text="Predicted Outcome" />
-      <TableView fx:id="fxTablePrediction" layoutX="978.0" layoutY="54.0" prefHeight="379.0" prefWidth="799.0">
+      <TableView fx:id="fxTablePrediction" layoutX="978.0" layoutY="54.0" prefHeight="379.0" prefWidth="850.0">
          <columns>
             <TableColumn fx:id="fxNameColumnPrediction" prefWidth="75.0" text="name" />
             <TableColumn fx:id="fxOverallOpinionColumnPrediction" prefWidth="75.0" text="Overall Opinion" />
@@ -35,6 +37,8 @@
             <TableColumn fx:id="fxVotesPrediction" prefWidth="75.0" text="Votes" />
             <TableColumn fx:id="fxFinalVotesPrediction" prefWidth="75.0" text="Final Votes" />
             <TableColumn fx:id="fxEliminatedColumnPrediction" prefWidth="75.0" text="Eliminated" />
+            <TableColumn prefWidth="75.0" text="Praised" />
+            <TableColumn prefWidth="75.0" text="Criticized" />
          </columns>
       </TableView>
       <Label fx:id="fxPraiseLabel" layoutX="267.0" layoutY="610.0" text="No one" />
@@ -42,7 +46,7 @@
       <Button fx:id="fxPraiseButton" layoutX="173.0" layoutY="606.0" mnemonicParsing="false" onAction="#selectPraise" text="Praise" />
       <Button fx:id="fxCriticizeButton" layoutX="173.0" layoutY="704.0" mnemonicParsing="false" onAction="#selectCriticize" text="Criticize" />
       <Button fx:id="fxEndTurnButton" layoutX="671.0" layoutY="653.0" mnemonicParsing="false" onAction="#endTurn" text="End turn" />
-      <TableView fx:id="fxTablePreview" layoutX="978.0" layoutY="464.0" prefHeight="379.0" prefWidth="799.0">
+      <TableView fx:id="fxTablePreview" layoutX="978.0" layoutY="464.0" prefHeight="379.0" prefWidth="850.0">
          <columns>
             <TableColumn fx:id="fxNameColumnPreview" prefWidth="75.0" text="name" />
             <TableColumn fx:id="fxOverallOpinionColumnPreview" prefWidth="75.0" text="Overall Opinion" />
@@ -53,6 +57,8 @@
             <TableColumn fx:id="fxVotesPreview" prefWidth="75.0" text="Votes" />
             <TableColumn fx:id="fxFinalVotesPreview" prefWidth="75.0" text="Final Votes" />
             <TableColumn fx:id="fxEliminatedColumnPreview" prefWidth="75.0" text="Eliminated" />
+            <TableColumn fx:id="fxPraisedPlayerPreview" prefWidth="75.0" text="Praised" />
+            <TableColumn fx:id="fxCriticizedPlayerPreview" prefWidth="75.0" text="Criticized" />
          </columns>
       </TableView>
    </children>
