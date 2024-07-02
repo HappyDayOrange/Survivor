@@ -4,6 +4,7 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -22,14 +23,31 @@ public class Player {
     public int[] inRelationships;
     public int[] outRelationshipsChange;
     public int[] inRelationshipsChange;
+    public int[] outPraisePreview;
+    public int[] inPraisePreview;
+    public int[] outCriticizePreview;
+    public int[] inCriticizePreview;
+    private int[] praisePreviewInSum;
+    private int[] criticizePreviewInSum;
     private int[] differenceOfOpinionFromFavorite;
     private int[] differenceOfOpinionFromChosenPlayer;
+    private int[] headToHeadScores;
+    private int[] headToHeadScoresRemaining;
+    private int headToHeadWins;
+    private int headToHeadWinDifferenceRemaining;
+    private int headToHeadWinSum;
+    private int headToHeadWinSumRemaining;
     public int inRelationSum;
     public int outRelationSum;
     private int influence;
     private int influenceRemaining;
     private int[] influenceForMe;
     private int[] influenceForMeRemaining;
+    private List<Player> supporters = new ArrayList<Player>();
+    private List<Player> opponents = new ArrayList<Player>();
+    private List<Player> allies = new ArrayList<Player>();
+    private List<Player> enemies = new ArrayList<Player>();
+    private List<Player> neutrals = new ArrayList<Player>();
     private int nominations = 0;
     private int votes = 0;
     private int finalVotes = 0;
@@ -60,8 +78,16 @@ public class Player {
         this.placement = numPlayers;
         this.outRelationships = new int[numPlayers];
         this.inRelationships = new int[numPlayers];
+        this.outPraisePreview = new int[numPlayers];
+        this.inPraisePreview = new int[numPlayers];
+        this.outCriticizePreview = new int[numPlayers];
+        this.inCriticizePreview = new int[numPlayers];
+        this.praisePreviewInSum = new int[numPlayers];
+        this.criticizePreviewInSum = new int[numPlayers];
         this.outRelationshipsChange = new int[numPlayers];
         this.inRelationshipsChange = new int[numPlayers];
+        this.headToHeadScores = new int[numPlayers];
+        this.headToHeadScoresRemaining = new int[numPlayers];
         this.influenceForMe = new int[numPlayers];
         this.influenceForMeRemaining = new int[numPlayers];
         this.differenceOfOpinionFromFavorite = new int[numPlayers];
@@ -120,15 +146,24 @@ public class Player {
         this.placement = player.placement;
         this.outRelationships =  player.outRelationships.clone();
         this.inRelationships = player.inRelationships.clone();
+        this.outPraisePreview = player.outPraisePreview.clone();
+        this.inPraisePreview = player.inPraisePreview.clone();
+        this.outCriticizePreview = player.outCriticizePreview.clone();
+        this.inCriticizePreview = player.inCriticizePreview.clone();
+        this.praisePreviewInSum = player.praisePreviewInSum.clone();
+        this.criticizePreviewInSum = player.criticizePreviewInSum.clone();
         this.outRelationshipsChange =  player.outRelationshipsChange.clone();
         this.inRelationshipsChange = player.inRelationshipsChange.clone();
         this.differenceOfOpinionFromFavorite = player.differenceOfOpinionFromFavorite.clone();
         this.differenceOfOpinionFromChosenPlayer = player.differenceOfOpinionFromChosenPlayer.clone();
+        this.headToHeadScores = player.headToHeadScores.clone();
+        this.headToHeadScoresRemaining = player.headToHeadScoresRemaining.clone();
         this.influenceForMe =  player.influenceForMe.clone();
         this.influenceForMeRemaining = player.influenceForMeRemaining.clone();
         this.inRelationSum = player.inRelationSum;
         this.outRelationSum = player.outRelationSum;
         this.playerName = player.playerName;
+        this.strategy = player.strategy;
         List<Player> friends = new ArrayList<>();
         List<Player> friendsOut = new ArrayList<>();
         incomingRelationshipStatus.add(friends);
@@ -227,6 +262,33 @@ public class Player {
         this.inRelationshipsChange[player.getPlayerIndex()] += value;
     }
 
+    public void changeOutPraisePreview(Player player, int value) {
+        this.outPraisePreview[player.getPlayerIndex()] += value;
+    }
+
+    public void changeInPraisePreview(Player player, int value) {
+        this.inPraisePreview[player.getPlayerIndex()] += value;
+    }
+
+    public void changeOutCriticizePreview(Player player, int value) {
+        this.outCriticizePreview[player.getPlayerIndex()] += value;
+    }
+
+    public void changeInCriticizePreview(Player player, int value) {
+        this.inCriticizePreview[player.getPlayerIndex()] += value;
+    }
+
+    public void resetPreviews() {
+        this.outPraisePreview = new int[numPlayers];
+        this.inPraisePreview = new int[numPlayers];
+        this.outCriticizePreview = new int[numPlayers];
+        this.inCriticizePreview = new int[numPlayers];
+    }
+    public void resetPreviewSums() {
+        this.praisePreviewInSum = new int[numPlayers];
+        this.criticizePreviewInSum = new int[numPlayers];
+    }
+
     public int getOutRelationshipsChange(Player player) {
         return outRelationshipsChange[player.getPlayerIndex()];
     }
@@ -315,29 +377,64 @@ public class Player {
         return inRelationships[player.getPlayerIndex()];
     }
 
+    public int getHeadToHeadScoreWithPlayer(Player player) {
+        return headToHeadScores[player.getPlayerIndex()];
+    }
+
+    public int getHeadToHeadScoreRemainingWithPlayer(Player player) {
+        return headToHeadScoresRemaining[player.getPlayerIndex()];
+    }
+
+
+
     public int findFavorite(ArrayList<Player> players) {
         int max = -10000;
-        int maxPlayerIndex = 0;
-        for (int i = 0; i < players.size(); i++) {
-            int playeridx = players.get(i).getPlayerIndex();
+        int favoritePlayerIndex = 0;
+        for (Player player : players) {
+            int playeridx = player.getPlayerIndex();
             if (playeridx != this.getPlayerIndex()) {
                 if (outRelationships[playeridx] == max) {
-                    System.out.println("First tiebreaker between " + playerArr[maxPlayerIndex].getName() + " and " + playerArr[playeridx].getName());
-                    if (inRelationships[playeridx] == inRelationships[maxPlayerIndex]) {
+                    System.out.println("First tiebreaker between " + playerArr[favoritePlayerIndex].getName() + " and " + playerArr[playeridx].getName());
+                    if (inRelationships[playeridx] == inRelationships[favoritePlayerIndex]) {
                         System.out.println("second tiebreaker");
                     }
-                    if (inRelationships[playeridx] > inRelationships[maxPlayerIndex]) {
-                        maxPlayerIndex = playeridx;
+                    if (inRelationships[playeridx] > inRelationships[favoritePlayerIndex]) {
+                        favoritePlayerIndex = playeridx;
                     }
                 }
                 if (outRelationships[playeridx] > max) {
                     max = outRelationships[playeridx];
-                    maxPlayerIndex = playeridx;
+                    favoritePlayerIndex = playeridx;
                 }
             }
         }
-        System.out.println(this.getName() + " chooses: " + playerArr[maxPlayerIndex].getName());
-        return maxPlayerIndex;
+        System.out.println(this.getName() + " chooses: " + playerArr[favoritePlayerIndex].getName());
+        return favoritePlayerIndex;
+    }
+
+    public int findLeastFavorite(ArrayList<Player> players) {
+        int min = 10000;
+        int LeastFavoritePlayerIndex = 0;
+        for (Player player : players) {
+            int playeridx = player.getPlayerIndex();
+            if (playeridx != this.getPlayerIndex()) {
+                if (outRelationships[playeridx] == min) {
+                    System.out.println("First tiebreaker between " + playerArr[LeastFavoritePlayerIndex].getName() + " and " + playerArr[playeridx].getName());
+                    if (inRelationships[playeridx] == inRelationships[LeastFavoritePlayerIndex]) {
+                        System.out.println("second tiebreaker");
+                    }
+                    if (inRelationships[playeridx] < inRelationships[LeastFavoritePlayerIndex]) {
+                        LeastFavoritePlayerIndex = playeridx;
+                    }
+                }
+                if (outRelationships[playeridx] < min) {
+                    min = outRelationships[playeridx];
+                    LeastFavoritePlayerIndex = playeridx;
+                }
+            }
+        }
+        System.out.println(this.getName() + " Least favorite player is: " + playerArr[LeastFavoritePlayerIndex].getName());
+        return LeastFavoritePlayerIndex;
     }
 
 
@@ -360,20 +457,20 @@ public class Player {
             players.remove(chosenPlayer);
             this.closestFromBeingChosen = playerArr[findFavorite(players)];
             chosenPlayer.setPlacement(this.getPlacement() + 1);
-            changeOpinionOfMe(chosenPlayer, (players.size()) * 5);
+            changeOpinionOfMe(chosenPlayer, (players.size()) * 5, false);
             for (Player player : players) {
                 if (player != chosenPlayer) {
-                    this.changeOpinionOfMe(player, -5);
+                    this.changeOpinionOfMe(player, -5, false);
                 }
             }
             chosenPlayer.selectNextPlace(players);
         } else {
             this.chosenPlayer = playerArr[findFavorite(players)];
             chosenPlayer.setPlacement(this.getPlacement() + 1);
-            this.changeOpinionOfMe(chosenPlayer, 50);
+            this.changeOpinionOfMe(chosenPlayer, 50, false);
             players.remove(chosenPlayer);
             this.closestFromBeingChosen = players.get(0);
-            this.changeOpinionOfMe(closestFromBeingChosen, -50);
+            this.changeOpinionOfMe(closestFromBeingChosen, -50, false);
             closestFromBeingChosen.setPlacement(this.getPlacement() + 2);
             /*
             for (Player player : playerArr) {
@@ -389,7 +486,26 @@ public class Player {
         }
     }
 
-    public void changeOpinionOfMe(Player player, int value) {
+    public void changeOpinionOfMe(Player player, int value, boolean preview) {
+
+        if (value > 0 && this.incomingRelationshipStatus.get(8).contains(player)) {
+            value += 10;
+            if (!preview) {
+                System.out.println("Redemption!");
+            }
+        }
+        if (value < 0 && this.incomingRelationshipStatus.get(0).contains(player)) {
+            value -= 10;
+            if (!preview) {
+                System.out.println("Betrayal");
+            }
+        }
+        if (this.allies.contains(player)) {
+            value -= 5;
+        }
+        if (this.enemies.contains(player)) {
+            value += 5;
+        }
         this.changeInRelationships(player, value);
         this.changeInRelationshipsChange(player, value);
         player.changeOutRelationships(this, value);
@@ -397,7 +513,36 @@ public class Player {
         System.out.println(player.getName() + " Changes Opinion of " + this.getName() + " by " + value);
     }
 
-    public void changeOpinionOf(Player player, int value) {
+    public void changeOpinionOf(Player player, int value, boolean preview, boolean praise) {
+
+        if (value > 0 && player.incomingRelationshipStatus.get(8).contains(this)) {
+            value += 10;
+            if (!preview) {
+                System.out.println("Redemption!");
+            }
+        }
+        if (value < 0 && player.incomingRelationshipStatus.get(0).contains(this)) {
+            value -= 10;
+            if (!preview) {
+                System.out.println("Betrayal!");
+            }
+        }
+        if (player.allies.contains(this)) {
+            value -= 5;
+        }
+        if (player.enemies.contains(this)) {
+            value += 5;
+        }
+        if (preview) {
+            if (praise) {
+                this.changeOutPraisePreview(player, value);
+                player.changeInPraisePreview(this, value);
+            } else {
+                this.changeOutCriticizePreview(player, value);
+                player.changeInCriticizePreview(this, value);
+            }
+            return;
+        }
         this.changeOutRelationships(player, value);
         this.changeOutRelationshipsChange(player, value);
         player.changeInRelationships(this, value);
@@ -467,37 +612,50 @@ public class Player {
                     this.incomingRelationshipStatus.get(0).add(otherPlayer);
                     otherPlayer.outcomingRelationshipStatus.get(0).add(this);
                     updateResults(results, otherPlayer, 20);
+                    this.allies.add(otherPlayer);
+                    this.supporters.add(otherPlayer);
                 } else if (this.inRelationships[i] >= 50) {
                     this.incomingRelationshipStatus.get(1).add(otherPlayer);
                     otherPlayer.outcomingRelationshipStatus.get(1).add(this);
                     updateResults(results, otherPlayer, 15);
+                    this.allies.add(otherPlayer);
+                    this.supporters.add(otherPlayer);
                 } else if (this.inRelationships[i] >= 25) {
                     this.incomingRelationshipStatus.get(2).add(otherPlayer);
                     otherPlayer.outcomingRelationshipStatus.get(2).add(this);
                     updateResults(results, otherPlayer, 10);
+                    this.supporters.add(otherPlayer);
                 }  else if (this.inRelationships[i] >= 10) {
                     this.incomingRelationshipStatus.get(3).add(otherPlayer);
                     otherPlayer.outcomingRelationshipStatus.get(3).add(this);
                     updateResults(results, otherPlayer, 5);
+                    this.supporters.add(otherPlayer);
                 } else if (this.inRelationships[i] <= -100) {
                     this.incomingRelationshipStatus.get(8).add(otherPlayer);
                     otherPlayer.outcomingRelationshipStatus.get(8).add(this);
                     updateResults(results, otherPlayer, -20);
+                    this.enemies.add(otherPlayer);
+                    this.opponents.add(otherPlayer);
                 } else if (this.inRelationships[i] <= -50) {
                     this.incomingRelationshipStatus.get(7).add(otherPlayer);
                     otherPlayer.outcomingRelationshipStatus.get(7).add(this);
                     updateResults(results, otherPlayer, -15);
+                    this.enemies.add(otherPlayer);
+                    this.opponents.add(otherPlayer);
                 } else if (this.inRelationships[i] <= -25) {
                     this.incomingRelationshipStatus.get(6).add(otherPlayer);
                     otherPlayer.outcomingRelationshipStatus.get(6).add(this);
                     updateResults(results, otherPlayer, -10);
+                    this.opponents.add(otherPlayer);
                 } else if (this.inRelationships[i] <= -10) {
                     this.incomingRelationshipStatus.get(5).add(otherPlayer);
                     otherPlayer.outcomingRelationshipStatus.get(5).add(this);
                     updateResults(results, otherPlayer, -5);
+                    this.opponents.add(otherPlayer);
                 } else {
                     this.incomingRelationshipStatus.get(4).add(otherPlayer);
                     otherPlayer.outcomingRelationshipStatus.get(4).add(this);
+                    this.neutrals.add(otherPlayer);
 
                 }
             }
@@ -519,8 +677,12 @@ public class Player {
 
     public void clearRelationshipStatus() {
         System.out.println("clearRelationshipStatus()");
+        this.allies.clear();
+        this.supporters.clear();
+        this.neutrals.clear();
+        this.opponents.clear();
+        this.enemies.clear();
         for (int i = 0; i < incomingRelationshipStatus.size(); i++) {
-
             this.incomingRelationshipStatus.get(i).clear();
             this.outcomingRelationshipStatus.get(i).clear();
 
@@ -557,13 +719,16 @@ public class Player {
         }
     }
 
-    public void praisePlayer (Player player) {
-        System.out.println(this.getName() + this.getRoundBorn() + " praises " + player.getName()+ player.getRoundBorn());
-        this.praisedPlayer = player;
-        this.errorCheckRelationshipStatus();
-        player.errorCheckRelationshipStatus();
-        player.printIncomingRelationshipStatus();
-        this.printIncomingRelationshipStatus();
+    public void praisePlayer (Player player, boolean preview) {
+        if (!preview) {
+            System.out.println(this.getName() + this.getRoundBorn() + " praises " + player.getName()+ player.getRoundBorn());
+            this.praisedPlayer = player;
+            this.errorCheckRelationshipStatus();
+            player.errorCheckRelationshipStatus();
+            player.printIncomingRelationshipStatus();
+            this.printIncomingRelationshipStatus();
+        }
+
         /*
         for (Player p: player.incomingRelationshipStatus.get(3)) {
             if (p != this) {
@@ -577,7 +742,7 @@ public class Player {
         for (int i = 5; i < 9; i++) {
             for (Player p: this.incomingRelationshipStatus.get(i)) {
                 if (p != player) {
-                    p.changeOpinionOf(player, base);
+                    p.changeOpinionOf(player, base, preview, true);
                 }
             }
             base -= 5;
@@ -587,7 +752,7 @@ public class Player {
         for (int i = 0; i < 4; i++) {
             for (Player p: this.incomingRelationshipStatus.get(i)) {
                 if (p != player) {
-                    p.changeOpinionOf(player, base);
+                    p.changeOpinionOf(player, base, preview, true);
                 }
             }
             base -= 5;
@@ -597,7 +762,7 @@ public class Player {
         for (int i = 5; i < 9; i++) {
             for (Player p: player.incomingRelationshipStatus.get(i)) {
                 if (p != this) {
-                    p.changeOpinionOf(this, base);
+                    p.changeOpinionOf(this, base, preview, true);
                 }
             }
             base -= 5;
@@ -607,23 +772,27 @@ public class Player {
         for (int i = 0; i < 4; i++) {
             for (Player p: player.incomingRelationshipStatus.get(i)) {
                 if (p != this) {
-                    p.changeOpinionOf(this, base);
+                    p.changeOpinionOf(this, base, preview, true);
                 }
             }
             base -= 5;
         }
 
-        player.changeOpinionOf(this, 10);
+        player.changeOpinionOf(this, 10, preview, true);
     }
 
-    public void criticizePlayer (Player player) {
-        System.out.println(this.getName() + this.getRoundBorn() + " criticizes " + player.getName() + player.getRoundBorn());
-        this.criticizedPlayer = player;
-        this.errorCheckRelationshipStatus();
-        player.errorCheckRelationshipStatus();
-        System.out.println("playerArr[player.getPlayerIndex()] == player");
-        System.out.println(playerArr[player.getPlayerIndex()] == player);
-        player.printIncomingRelationshipStatus();
+    public void criticizePlayer (Player player, boolean preview) {
+
+        if (!preview) {
+            System.out.println(this.getName() + this.getRoundBorn() + " criticizes " + player.getName() + player.getRoundBorn());
+            this.criticizedPlayer = player;
+            this.errorCheckRelationshipStatus();
+            player.errorCheckRelationshipStatus();
+            System.out.println("playerArr[player.getPlayerIndex()] == player");
+            System.out.println(playerArr[player.getPlayerIndex()] == player);
+            player.printIncomingRelationshipStatus();
+        }
+
 
         /*
         for (Player p: player.incomingRelationshipStatus.get(3)) {
@@ -637,7 +806,7 @@ public class Player {
         for (int i = 5; i < 9; i++) {
             for (Player p: this.incomingRelationshipStatus.get(i)) {
                 if (p != player) {
-                    p.changeOpinionOf(player, base);
+                    p.changeOpinionOf(player, base, preview, false);
                 }
             }
             base += 5;
@@ -647,7 +816,7 @@ public class Player {
         for (int i = 0; i < 4; i++) {
             for (Player p: this.incomingRelationshipStatus.get(i)) {
                 if (p != player) {
-                    p.changeOpinionOf(player, base);
+                    p.changeOpinionOf(player, base, preview, false);
                 }
             }
             base += 5;
@@ -657,7 +826,7 @@ public class Player {
         for (int i = 5; i < 9; i++) {
             for (Player p: player.incomingRelationshipStatus.get(i)) {
                 if (p != this) {
-                    p.changeOpinionOf(this, base);
+                    p.changeOpinionOf(this, base, preview, false);
                 }
             }
             base += 5;
@@ -667,24 +836,38 @@ public class Player {
         for (int i = 0; i < 4; i++) {
             for (Player p: player.incomingRelationshipStatus.get(i)) {
                 if (p != this) {
-                    p.changeOpinionOf(this, base);
+                    p.changeOpinionOf(this, base, preview, false);
                 }
             }
             base += 5;
         }
 
-        player.changeOpinionOf(this, -10);
+        player.changeOpinionOf(this, -10, preview, false);
+    }
+
+    public void praisePreview(Player player) {
+        this.resetPreviews();
+        player.resetPreviews();
+        this.praisePlayer(player, true);
+        this.praisePreviewInSum[player.getPlayerIndex()] = IntStream.of(inPraisePreview).sum();
+    }
+
+    public void criticizePreview(Player player) {
+        this.resetPreviews();
+        player.resetPreviews();
+        criticizePlayer(player, true);
+        this.criticizePreviewInSum[player.getPlayerIndex()] = IntStream.of(inCriticizePreview).sum();
     }
 
     public boolean canPraise(Player player) {
-        if (this.isEliminated() || player == this) {
+        if (this.isEliminated() || player == this || !this.isReal) {
             return false;
         }
         return this.outRelationships[player.getPlayerIndex()] >= 0;
     }
 
     public boolean canCriticize(Player player) {
-        if (this.isEliminated() || player == this) {
+        if (this.isEliminated() || player == this || !this.isReal) {
             return false;
         }
         return this.outRelationships[player.getPlayerIndex()] <= 0;
@@ -720,6 +903,7 @@ public class Player {
     }
 
     public void updateInfluenceForMe() {
+        System.out.println("updateInfluenceForStatus for: " + this.getName() + " " + this.getRoundBorn());
         updateInfluenceForStatus(0, -20);
         updateInfluenceForStatus(1, -15);
         updateInfluenceForStatus(2, -10);
@@ -732,11 +916,31 @@ public class Player {
     }
 
     private void updateInfluenceForStatus(int statusIndex, int influenceChange) {
+
         for (Player player : outcomingRelationshipStatus.get(statusIndex)) {
-            int myInfluence = player.influence + influenceChange;
-            int myInfluenceRemaining = player.influenceRemaining + influenceChange;
-            player.setInfluenceForMe(this, myInfluence);
-            player.setInfluenceForMeRemaining(this, myInfluenceRemaining);
+            int temp = influenceChange;
+            int tempremaining = influenceChange;
+            for (Player playerToCheck : player.playerArr) {
+                if (!player.neutrals.contains(playerToCheck)) {
+                    if (this.allies.contains(playerToCheck)) {
+                        System.out.println(playerToCheck.getName() + " influenceChange - 5 for: " + player.getName());
+                        temp -= 5;
+                        if(!playerToCheck.isEliminated()) {
+                            tempremaining -= 5;
+                        }
+                    } else if (this.enemies.contains(playerToCheck)) {
+                        System.out.println(playerToCheck.getName() + " influenceChange + 5 for: " + player.getName());
+                        temp += 5;
+                        if(!playerToCheck.isEliminated()) {
+                            tempremaining += 5;
+                        }
+                    }
+                }
+                int myInfluence = player.influence + temp;
+                int myInfluenceRemaining = player.influenceRemaining + tempremaining;
+                player.setInfluenceForMe(this, myInfluence);
+                player.setInfluenceForMeRemaining(this, myInfluenceRemaining);
+            }
         }
     }
 
@@ -808,6 +1012,10 @@ public class Player {
         return this.chosenPlayer;
     }
 
+    public void clearChosenPlayer() {
+        this.chosenPlayer = null;
+    }
+
     public String getChosenPlayerAsString() {
         if (this.chosenPlayer != null) {
             return this.chosenPlayer.getName();
@@ -833,6 +1041,22 @@ public class Player {
 
     public void setInfluenceForMeRemaining(Player player, int value) {
         this.influenceForMeRemaining[player.getPlayerIndex()] = value;
+    }
+
+    public int getPraiseSumPreview(Player player) {
+        return this.praisePreviewInSum[player.getPlayerIndex()];
+    }
+
+    public int[] getPraiseInPreviewSum() {
+        return this.praisePreviewInSum;
+    }
+
+    public int[] getCriticizePreviewSum() {
+        return this.criticizePreviewInSum;
+    }
+
+    public int getCriticizeSumPreview(Player player) {
+        return this.criticizePreviewInSum[player.getPlayerIndex()];
     }
 
     public boolean getHasBeenPickedAsNumber(int index) {
@@ -887,6 +1111,76 @@ public class Player {
     public void clearPicks() {
         this.setPraisedPlayer(null);
         this.setCriticizedPlayer(null);
+    }
+
+    public void calculateHeadToHead(ArrayList<Player> players) {
+        ArrayList<Player> otherPlayers = new ArrayList<>(players);
+        otherPlayers.remove(this);
+        for (Player player : otherPlayers) {
+            int score = 0;
+            int scoreRemaining = 0;
+            for (Player playerToCompare : playerArr) {
+                if (playerToCompare != player && playerToCompare != this) {
+                    ArrayList<Player> playersToCompare = new ArrayList<>(Arrays.asList(this, player)) ;
+                    Player chosenPlayer = playerArr[playerToCompare.findFavorite(playersToCompare)];
+                    if (chosenPlayer == this) {
+                        score += 1;
+                        if (!playerToCompare.isEliminated()) {
+                            scoreRemaining += 1;
+                        }
+                    } else {
+                        score -= 1;
+                        if (!playerToCompare.isEliminated()) {
+                            scoreRemaining -= 1;
+                        }
+                    }
+                }
+            }
+            this.headToHeadScores[player.getPlayerIndex()] = score;
+            player.headToHeadScores[this.getPlayerIndex()] = score * -1;
+            this.headToHeadScoresRemaining[player.getPlayerIndex()] = scoreRemaining;
+            player.headToHeadScoresRemaining[this.getPlayerIndex()] = scoreRemaining * -1;
+        }
+        if (otherPlayers.isEmpty()) {
+            return;
+        }
+        otherPlayers.get(0).calculateHeadToHead(otherPlayers);
+    }
+
+    public void calculateHeadToHeadWinsAndSum() {
+        int score = 0;
+        int scoreRemaining = 0;
+        int sum = 0;
+        int sumRemaining = 0;
+        for (int i = 0; i < numPlayers; i++) {
+            if (!playerArr[i].isEliminated()) {
+                sum += headToHeadScores[i];
+                sumRemaining += headToHeadScoresRemaining[i];
+                if (headToHeadScores[i] > 0) {
+                    score += 1;
+                    if (headToHeadScoresRemaining[i] > 0) {
+                        scoreRemaining += 1;
+                    }
+                }
+            }
+            this.headToHeadWins = score;
+            this.headToHeadWinDifferenceRemaining = scoreRemaining;
+            this.headToHeadWinSum = sum;
+            this.headToHeadWinSumRemaining = sumRemaining;
+        }
+    }
+
+    public void clearHeadToHeadStats() {
+        Arrays.fill(this.headToHeadScores, 0);
+        Arrays.fill(this.headToHeadScoresRemaining, 0);
+        this.headToHeadWins = 0;
+        this.headToHeadWinDifferenceRemaining = 0;
+        this.headToHeadWinSum = 0;
+        this.headToHeadWinSumRemaining= 0;
+    }
+
+    public int getHeadToHeadWins() {
+        return headToHeadWins;
     }
 }
 

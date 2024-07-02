@@ -32,6 +32,8 @@ public class MainMenuController {
     @FXML
     private TableColumn<Player, Integer> fxFinalVotes;
     @FXML
+    private TableColumn<Player, Integer> fxHeadToHead;
+    @FXML
     private TableColumn<Player, Integer> fxNominations;
     @FXML
     private TableColumn<Player, Integer> fxVotes;
@@ -58,11 +60,17 @@ public class MainMenuController {
     @FXML
     private TableColumn<Player, Integer> fxFinalVotesPrediction;
     @FXML
+    private TableColumn<Player, Integer> fxHeadToHeadPrediction;
+    @FXML
     private TableColumn<Player, Integer> fxNominationsPrediction;
     @FXML
     private TableColumn<Player, Integer> fxVotesPrediction;
     @FXML
     private TableColumn<Player, Boolean> fxEliminatedColumnPrediction;
+    @FXML
+    private TableColumn<Player, String> fxPraisedPlayerPrediction;
+    @FXML
+    private TableColumn<Player, String> fxCriticizedPlayerPrediction;
 
     @FXML
     private TableView<Player> fxTablePreview;
@@ -78,6 +86,8 @@ public class MainMenuController {
     private TableColumn<Player, Integer> fxPlacementPreview;
     @FXML
     private TableColumn<Player, Integer> fxFinalVotesPreview;;
+    @FXML
+    private TableColumn<Player, Integer> fxHeadToHeadPreview;
     @FXML
     private TableColumn<Player, Integer> fxNominationsPreview;
     @FXML
@@ -139,6 +149,7 @@ public class MainMenuController {
         fxInfluenceRemaining.setCellValueFactory(new PropertyValueFactory<>("influenceRemaining"));
         fxPlacement.setCellValueFactory(new PropertyValueFactory<>("placement"));
         fxFinalVotes.setCellValueFactory(new PropertyValueFactory<>("finalVotes"));
+        fxHeadToHead.setCellValueFactory(new PropertyValueFactory<>("headToHeadWins"));
         fxNominations.setCellValueFactory(new PropertyValueFactory<>("nominations"));
         fxVotes.setCellValueFactory(new PropertyValueFactory<>("votes"));
         fxEliminatedColumn.setCellValueFactory(new PropertyValueFactory<>("eliminated"));
@@ -166,9 +177,12 @@ public class MainMenuController {
         fxInfluenceRemainingPrediction.setCellValueFactory(new PropertyValueFactory<>("influenceRemaining"));
         fxPlacementPrediction.setCellValueFactory(new PropertyValueFactory<>("placement"));
         fxFinalVotesPrediction.setCellValueFactory(new PropertyValueFactory<>("finalVotes"));
+        fxHeadToHeadPrediction.setCellValueFactory(new PropertyValueFactory<>("headToHeadWins"));
         fxNominationsPrediction.setCellValueFactory(new PropertyValueFactory<>("nominations"));
         fxVotesPrediction.setCellValueFactory(new PropertyValueFactory<>("votes"));
         fxEliminatedColumnPrediction.setCellValueFactory(new PropertyValueFactory<>("eliminated"));
+        fxPraisedPlayerPrediction.setCellValueFactory(new PropertyValueFactory<>("praisedPlayerAsString"));
+        fxCriticizedPlayerPrediction.setCellValueFactory(new PropertyValueFactory<>("criticizedPlayerAsString"));
 
         // Sort by placement by default
         fxPlacementPrediction.setSortType(TableColumn.SortType.ASCENDING); // or DESCENDING
@@ -191,11 +205,12 @@ public class MainMenuController {
         fxInfluenceRemainingPreview.setCellValueFactory(new PropertyValueFactory<>("influenceRemaining"));
         fxPlacementPreview.setCellValueFactory(new PropertyValueFactory<>("placement"));
         fxFinalVotesPreview.setCellValueFactory(new PropertyValueFactory<>("finalVotes"));
+        fxHeadToHeadPreview.setCellValueFactory(new PropertyValueFactory<>("headToHeadWins"));
         fxNominationsPreview.setCellValueFactory(new PropertyValueFactory<>("nominations"));
         fxVotesPreview.setCellValueFactory(new PropertyValueFactory<>("votes"));
         fxEliminatedColumnPreview.setCellValueFactory(new PropertyValueFactory<>("eliminated"));
-        fxPraisedPlayerPreview.setCellValueFactory(new PropertyValueFactory<>("praisedPlayer"));
-        fxCriticizedPlayerPreview.setCellValueFactory(new PropertyValueFactory<>("criticizedPlayer"));
+        fxPraisedPlayerPreview.setCellValueFactory(new PropertyValueFactory<>("praisedPlayerAsString"));
+        fxCriticizedPlayerPreview.setCellValueFactory(new PropertyValueFactory<>("criticizedPlayerAsString"));
 
         // Sort by placement by default
         fxPlacementPreview.setSortType(TableColumn.SortType.ASCENDING); // or DESCENDING
@@ -241,6 +256,10 @@ public class MainMenuController {
     @FXML
     public void endTurn() {
         gameController.endTurn(humanPlayer, praisedPlayer, criticizedPlayer);
+        fxPraiseLabel.setText("No one");
+        this.praisedPlayer = null;
+        fxCriticizeLabel.setText("No one");
+        this.criticizedPlayer = null;
     }
 
     public void reloadData() {

@@ -125,7 +125,7 @@ public class RelationshipManager {
             generateRelationshipsHelper.get(8 - k).add(pick);
         }
         System.out.println(picker.getName() + " draws: " + pick.getName());
-        picker.changeOpinionOfMe(pick, value);
+        picker.changeOpinionOfMe(pick, value, false);
         discardList.add(pick);
         pick.setHasBeenPickedAsNumber(k);
         hasDrawnList.add(pick);

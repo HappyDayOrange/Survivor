@@ -15,12 +15,15 @@ public class GameManager {
     public Settings settings;
     private Player humanPlayer;
     private Player firstRoundWinner;
+    private Player latestLoser;
     int generationNum = 0;
     int roundNum = 0;
     private List<List<Player>> playerActions = new ArrayList<>();
 
     public GameManager(Settings settings) {
         this.setup(settings);
+        this.updateRelationshipStatuses();
+        this.calculatePreviewSums();
         this.createPlayerActionsList();
     }
 
@@ -53,6 +56,9 @@ public class GameManager {
         System.out.println("playerActions.size() " + playerActions.size());
         this.relationshipManager = new RelationshipManager(numPlayers, playerArr);
         this.firstRoundWinner = playerArr[manager.firstRoundWinner.getPlayerIndex()];
+        if (manager.getLatestLoser() != null) {
+            this.latestLoser = playerArr[manager.getLatestLoser().getPlayerIndex()];
+        }
     }
 
     public void setup(Settings settings) {
@@ -79,11 +85,18 @@ public class GameManager {
     }
 
     public void simulateRound() {
-        resetNominationsAndVotes();
-        resetRelationshipChange();
-        clearPlayerPicks();
         if (this.roundNum == 0) {
+            playerList.get(0).calculateHeadToHead(playerList);
             this.playersPickingActions();
+        }
+        this.resetNominationsAndVotes();
+        this.resetPreviewStats();
+        this.resetRelationshipChange();
+        this.clearPlayerPicks();
+
+        if (this.latestLoser != null) {
+            Player[] result = this.latestLoser.strategy.praiseFavoriteRemainingAndCriticizeLeastFavoriteRemaining();
+            this.setPlayerActions(latestLoser, result[0], result[1]);
         }
         this.performPlayerActions();
 
@@ -96,6 +109,7 @@ public class GameManager {
         }
 
         this.updateRelationshipStatuses();
+        this.calculatePreviewSums();
         this.clearPlayerActions();
         this.playersPickingActions();
     }
@@ -172,6 +186,7 @@ public class GameManager {
         System.out.println(loser.getName() + " is eliminated");
         this.remainingPlayers.remove(loser);
         this.eliminatedPlayers.add(loser);
+        this.latestLoser = loser;
     }
 
     public Player election(ArrayList<Player> players, ArrayList<Player> nominees) {
@@ -184,12 +199,12 @@ public class GameManager {
             int chosenPlayerIndex = temp.get(i).findFavorite(nominees);
             results[chosenPlayerIndex]++;
             if (playerArr[chosenPlayerIndex] == nominees.get(0)) {
-                nominees.get(0).changeOpinionOf(temp.get(i), + 5);
-                nominees.get(1).changeOpinionOf(temp.get(i), - 5);
+                nominees.get(0).changeOpinionOf(temp.get(i), + 5, false, false);
+                nominees.get(1).changeOpinionOf(temp.get(i), - 5, false, false);
             }
             else {
-                nominees.get(1).changeOpinionOf(temp.get(i), + 5);
-                nominees.get(0).changeOpinionOf(temp.get(i), - 5);
+                nominees.get(1).changeOpinionOf(temp.get(i), + 5, false, false);
+                nominees.get(0).changeOpinionOf(temp.get(i), - 5, false,false);
             }
         }
         for (int i = 0; i < numPlayers; i++) {
@@ -304,10 +319,11 @@ public class GameManager {
     }
 
     public void praisePlayer (Player PraisingPlayer, Player PraisedPlayer) {
-        PraisingPlayer.praisePlayer(PraisedPlayer);
+        PraisingPlayer.praisePlayer(PraisedPlayer, false);
     }
 
     public void performPlayerActions() {
+
         for (int i = 0; i < playerActions.size(); i++) {
             if (playerActions.get(i).isEmpty()) {
                 continue;
@@ -320,24 +336,11 @@ public class GameManager {
             System.out.println("Praising player: " + praisedPlayer.getName());
             System.out.println("Criticizing player: " + criticizedPlayer.getName());
 
-            // Debugging: Check relationship status before influence update
-            System.out.println("Before updateInfluence: ");
-            player.printIncomingRelationshipStatus();
-            praisedPlayer.printIncomingRelationshipStatus();
-            criticizedPlayer.printIncomingRelationshipStatus();
-
-
-            // Debugging: Check relationship status after influence update
-            System.out.println("After updateInfluence: ");
-            player.printIncomingRelationshipStatus();
-            praisedPlayer.printIncomingRelationshipStatus();
-            criticizedPlayer.printIncomingRelationshipStatus();
-
             clearRelationshipStatusesOfAllPlayers();
             updateRelationshipStatuses();
 
-            player.praisePlayer(praisedPlayer);
-            player.criticizePlayer(criticizedPlayer);
+            player.praisePlayer(praisedPlayer, false);
+            player.criticizePlayer(criticizedPlayer, false);
         }
     }
 
@@ -361,7 +364,10 @@ public class GameManager {
 
 
     public void setPlayerActions(Player player, Player praisedPlayer, Player criticizedPlayer) {
-        int actingNum = player.getPlacement() - 1;
+        int actingNum = 0;
+        if (!player.isEliminated()) {
+            actingNum = player.getPlacement();
+        }
         Player p = playerArr[player.getPlayerIndex()];
         Player pp = playerArr[praisedPlayer.getPlayerIndex()];
         Player cp = playerArr[criticizedPlayer.getPlayerIndex()];
@@ -390,9 +396,12 @@ public class GameManager {
         clearRelationshipStatusesOfAllPlayers();
         for (Player player : this.playerArr) {
             player.setFinalVotes(0);
+            player.clearHeadToHeadStats();
         }
+        playerList.get(0).calculateHeadToHead(playerList);
         for (Player player : this.playerArr) {
             player.updateFavoriteRemainingPlayer(this.remainingPlayers);
+            player.calculateHeadToHeadWinsAndSum();
         }
         for (Player player : this.playerArr) {
             player.updateRelationSums();
@@ -408,6 +417,22 @@ public class GameManager {
             System.out.println("Error checking");
             player.errorCheckRelationshipStatus();
             player.printOutcomingRelationshipStatus();
+        }
+    }
+
+    public void calculatePreviewSums() {
+        for (Player player : playerArr) {
+            for (Player playerToEvaluate : playerArr) {
+                player.praisePreview(playerToEvaluate);
+                player.criticizePreview(playerToEvaluate);
+            }
+        }
+    }
+
+    public void resetPreviewStats() {
+        for (Player player : playerArr) {
+            player.resetPreviews();
+            player.resetPreviewSums();
         }
     }
 
@@ -435,6 +460,8 @@ public class GameManager {
         playerActions.add(action10);
         List<Player> action11 = new ArrayList<>();
         playerActions.add(action11);
+        List<Player> action12 = new ArrayList<>();
+        playerActions.add(action12);
     }
 
     public void playersPickingActions() {
@@ -445,6 +472,10 @@ public class GameManager {
             }
             this.setPlayerActions(player, picks[0], picks[1]);
         }
+    }
+
+    public Player getLatestLoser() {
+        return this.latestLoser;
     }
 
 

@@ -46,9 +46,17 @@ public class PlayerDetailsController {
     @FXML
     private TableColumn<Player, Integer> fxPlacement;
     @FXML
+    private TableColumn<Player, Integer> fxPraiseSumPreview;
+    @FXML
+    private TableColumn<Player, Integer> fxCriticizeSumPreview;
+    @FXML
     private TableColumn<Player, Integer> fxInfluenceForMe;
     @FXML
     private TableColumn<Player, Integer> fxInfluenceForMeRemaining;
+    @FXML
+    private TableColumn<Player, Integer> fxHeadToHeadScore;
+    @FXML
+    private TableColumn<Player, Integer> fxHeadToHeadRemaining;
 
 
     private ObservableList<Player> otherPlayers;
@@ -100,6 +108,18 @@ public class PlayerDetailsController {
             return new ReadOnlyIntegerWrapper(relationshipValue).asObject();
         });
 
+        fxPraiseSumPreview.setCellValueFactory(cellData -> {
+            Player otherPlayer = cellData.getValue();
+            int relationshipValue = selectedPlayer.getPraiseSumPreview(otherPlayer);
+            return new ReadOnlyIntegerWrapper(relationshipValue).asObject();
+        });
+
+        fxCriticizeSumPreview.setCellValueFactory(cellData -> {
+            Player otherPlayer = cellData.getValue();
+            int relationshipValue = selectedPlayer.getCriticizeSumPreview(otherPlayer);
+            return new ReadOnlyIntegerWrapper(relationshipValue).asObject();
+        });
+
         fxInfluenceForMe.setCellValueFactory(cellData -> {
             Player otherPlayer = cellData.getValue();
             int relationshipValue = otherPlayer.getInfluenceForMe(selectedPlayer);
@@ -111,6 +131,19 @@ public class PlayerDetailsController {
             int relationshipValue = otherPlayer.getInfluenceForMeRemaining(selectedPlayer);
             return new ReadOnlyIntegerWrapper(relationshipValue).asObject();
         });
+
+        fxHeadToHeadScore.setCellValueFactory(cellData -> {
+            Player otherPlayer = cellData.getValue();
+            int headToHeadValue = selectedPlayer.getHeadToHeadScoreWithPlayer(otherPlayer);
+            return new ReadOnlyIntegerWrapper(headToHeadValue).asObject();
+        });
+
+        fxHeadToHeadRemaining.setCellValueFactory(cellData -> {
+            Player otherPlayer = cellData.getValue();
+            int headToHeadValue = selectedPlayer.getHeadToHeadScoreRemainingWithPlayer(otherPlayer);
+            return new ReadOnlyIntegerWrapper(headToHeadValue).asObject();
+        });
+
 
         fxTable.setRowFactory(tv -> {
             TableRow<Player> row = new TableRow<>();

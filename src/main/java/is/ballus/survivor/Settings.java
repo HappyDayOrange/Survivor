@@ -3,7 +3,7 @@ package is.ballus.survivor;
 public class Settings {
     public String playerNames[] = {"Baldvin", "Ásgeir", "Hannes", "Helgi", "Guðmar", "Snorri", "Sindri", "Óskar", "Hafsteinn", "Tómas", "Jakob"};
     private int numPLayers = 11;
-    private int[] PlayerStrategies = {0,1,1,1,1,1,1,1,1,1,1};
+    private int[] PlayerStrategies = {1,3,3,3,3,3,3,3,3,3,3};
 
     public int getNumPLayers() {
         return numPLayers;
