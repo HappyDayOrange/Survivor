@@ -12,6 +12,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -116,6 +117,7 @@ public class MainMenuController {
     private Player criticizedPlayer;
     private GameController gameController;
 
+
     public void setPlayers(Player[] players, Player[] playersPrediction, Player[] playersPreview) {
         this.playerList = FXCollections.observableArrayList(players);
         fxTable.setItems(this.playerList);
@@ -160,16 +162,36 @@ public class MainMenuController {
         fxPlacement.setSortType(TableColumn.SortType.ASCENDING); // or DESCENDING
         fxTable.getSortOrder().add(fxPlacement);
 
-        fxTable.setRowFactory(tv -> {
-            TableRow<Player> row = new TableRow<>();
-            row.setOnMouseClicked(event -> {
-                if (event.getClickCount() == 2 && (!row.isEmpty())) {
-                    Player rowData = row.getItem();
-                    showPlayerDetails(rowData, playerList, fxTable);
+        //rowFactoryInit(fxTable, playerList);
+
+        fxTable.setRowFactory(tv -> new TableRow<>() {
+            @Override
+            protected void updateItem(Player item, boolean empty) {
+                super.updateItem(item, empty);
+                if (item == null || empty) {
+                    setStyle("");
+                } else {
+                    if (item.getPlacement() == 1) {
+                        setStyle("-fx-background-color: rgba(0, 255, 0, 0.2)");
+                    } else if (item.isEliminated()){
+                        setStyle("-fx-background-color: rgba(255, 0, 0, 0.2)");
+                    } else {
+                        setStyle("");
+                    }
                 }
-            });
-            return row;
+
+                setOnMouseClicked(event -> {
+                    setStyle("-fx-background-color: -fx-selection-bar");
+                    if (event.getClickCount() == 2 && !isEmpty()) {
+                        Player rowData = getItem();
+                        showPlayerDetails(rowData, playerList, fxTable);
+                    }
+                });
+            }
         });
+
+
+
 
         fxNameColumnPrediction.setCellValueFactory(new PropertyValueFactory<>("name"));
         fxOverallOpinionColumnPrediction.setCellValueFactory(new PropertyValueFactory<>("inRelationSum"));
@@ -188,15 +210,32 @@ public class MainMenuController {
         fxPlacementPrediction.setSortType(TableColumn.SortType.ASCENDING); // or DESCENDING
         fxTablePrediction.getSortOrder().add(fxPlacementPrediction);
 
-        fxTablePrediction.setRowFactory(tv -> {
-            TableRow<Player> row = new TableRow<>();
-            row.setOnMouseClicked(event -> {
-                if (event.getClickCount() == 2 && (!row.isEmpty())) {
-                    Player rowData = row.getItem();
-                    showPlayerDetails(rowData, playerListPrediction, fxTablePrediction);
+        //rowFactoryInit(fxTablePrediction, playerListPrediction);
+
+        fxTablePrediction.setRowFactory(tv -> new TableRow<>() {
+            @Override
+            protected void updateItem(Player item, boolean empty) {
+                super.updateItem(item, empty);
+                if (item == null || empty) {
+                    setStyle("");
+                } else {
+                    if (item.getPlacement() == 1) {
+                        setStyle("-fx-background-color: rgba(0, 255, 0, 0.2)");
+                    } else if (item.isEliminated()){
+                        setStyle("-fx-background-color: rgba(255, 0, 0, 0.2)");
+                    } else {
+                        setStyle("");
+                    }
                 }
-            });
-            return row;
+
+                setOnMouseClicked(event -> {
+                    setStyle("-fx-background-color: -fx-selection-bar");
+                    if (event.getClickCount() == 2 && !isEmpty()) {
+                        Player rowData = getItem();
+                        showPlayerDetails(rowData, playerListPrediction, fxTablePrediction);
+                    }
+                });
+            }
         });
 
         fxNameColumnPreview.setCellValueFactory(new PropertyValueFactory<>("name"));
@@ -216,16 +255,38 @@ public class MainMenuController {
         fxPlacementPreview.setSortType(TableColumn.SortType.ASCENDING); // or DESCENDING
         fxTablePreview.getSortOrder().add(fxPlacementPreview);
 
-        fxTablePreview.setRowFactory(tv -> {
-            TableRow<Player> row = new TableRow<>();
-            row.setOnMouseClicked(event -> {
-                if (event.getClickCount() == 2 && (!row.isEmpty())) {
-                    Player rowData = row.getItem();
-                    showPlayerDetails(rowData, playerListPreview, fxTablePreview);
+        //rowFactoryInit(fxTablePreview, playerListPreview);
+
+        fxTablePreview.setRowFactory(tv -> new TableRow<>() {
+            @Override
+            protected void updateItem(Player item, boolean empty) {
+                super.updateItem(item, empty);
+                if (item == null || empty) {
+                    setStyle("");
+                } else {
+                    if (item.getPlacement() == 1) {
+                        if (!isSelected()) {
+                            setStyle("-fx-background-color: rgba(0, 255, 0, 0.2)");
+                        }
+                    } else if (item.isEliminated()){
+                        if (!isSelected()) {
+                            setStyle("-fx-background-color: rgba(255, 0, 0, 0.2)");
+                        }
+                    } else {
+                        setStyle("");
+                    }
                 }
-            });
-            return row;
+
+                setOnMouseClicked(event -> {
+                    setStyle("-fx-background-color: -fx-selection-bar");
+                    if (event.getClickCount() == 2 && !isEmpty()) {
+                        Player rowData = getItem();
+                        showPlayerDetails(rowData, playerListPreview, fxTablePreview);
+                    }
+                });
+            }
         });
+
     }
     private void showPlayerDetails(Player selectedPlayer, ObservableList<Player> otherPlayers, TableView<Player> table) {
         try {
@@ -284,6 +345,25 @@ public class MainMenuController {
             fxCriticizeLabel.setText(selectedPlayer.getName());
             this.criticizedPlayer = selectedPlayer;
         }
+    }
+
+
+    public void rowFactoryInit(TableView<Player> table, ObservableList<Player> players) {
+        if (players == null) {
+            System.out.println("players == null");
+        } else {
+            System.out.println("players.size() " + players.size());
+        }
+        table.setRowFactory(tv -> {
+            TableRow<Player> row = new TableRow<>();
+            row.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2 && (!row.isEmpty())) {
+                    Player rowData = row.getItem();
+                    showPlayerDetails(rowData, players, table);
+                }
+            });
+            return row;
+        });
     }
 
 

@@ -1,8 +1,6 @@
 package is.ballus.survivor;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class GameManager {
     public Player[] playerArr;
@@ -17,7 +15,7 @@ public class GameManager {
     private Player firstRoundWinner;
     private Player latestLoser;
     int generationNum = 0;
-    int roundNum = 0;
+    private int roundNum = 0;
     private List<List<Player>> playerActions = new ArrayList<>();
 
     public GameManager(Settings settings) {
@@ -50,15 +48,13 @@ public class GameManager {
         }
         this.humanPlayer = manager.humanPlayer;
         createPlayerActionsList();
-        System.out.println("##############");
-        System.out.println("playerActions.size() " + playerActions.size());
         this.clearPlayerActions();
-        System.out.println("playerActions.size() " + playerActions.size());
         this.relationshipManager = new RelationshipManager(numPlayers, playerArr);
         this.firstRoundWinner = playerArr[manager.firstRoundWinner.getPlayerIndex()];
         if (manager.getLatestLoser() != null) {
             this.latestLoser = playerArr[manager.getLatestLoser().getPlayerIndex()];
         }
+        this.updateRelationshipStatuses();
     }
 
     public void setup(Settings settings) {
@@ -87,17 +83,18 @@ public class GameManager {
     public void simulateRound() {
         if (this.roundNum == 0) {
             playerList.get(0).calculateHeadToHead(playerList);
-            this.playersPickingActions();
         }
         this.resetNominationsAndVotes();
         this.resetPreviewStats();
         this.resetRelationshipChange();
         this.clearPlayerPicks();
 
+        /*
         if (this.latestLoser != null) {
             Player[] result = this.latestLoser.strategy.praiseFavoriteRemainingAndCriticizeLeastFavoriteRemaining();
             this.setPlayerActions(latestLoser, result[0], result[1]);
         }
+         */
         this.performPlayerActions();
 
         if (this.roundNum == 0) {
@@ -136,7 +133,6 @@ public class GameManager {
     }
 
     private void handleFinalRound() {
-        System.out.println("Test");
         Player winner = election(this.playerList, this.remainingPlayers);
         winner.setPlacement(1);
         ArrayList<Player> temp = new ArrayList<>(this.remainingPlayers);
@@ -152,10 +148,7 @@ public class GameManager {
         this.updateRelationshipStatuses();
         errorCheckAndPrintStatus();
          */
-        int[] nominees = voteForNominees(this.remainingPlayers);
-        ArrayList<Player> nomineesAsList = new ArrayList<>();
-        nomineesAsList.add(this.playerArr[nominees[0]]);
-        nomineesAsList.add(this.playerArr[nominees[1]]);
+        ArrayList<Player> nomineesAsList = voteForNominees(this.remainingPlayers);
         Player winner = election(this.remainingPlayers, nomineesAsList);
         winner.setPlacement(1);
         ArrayList<Player> temp = new ArrayList<>(this.remainingPlayers);
@@ -194,39 +187,38 @@ public class GameManager {
         int[] results = new int[numPlayers];
         ArrayList<Player> temp = new ArrayList<>(players);
         temp.removeAll(nominees);
-        System.out.println("temp.size() " + temp.size());
         for (int i = 0; i < players.size() - 2; i++ ) {
-            int chosenPlayerIndex = temp.get(i).findFavorite(nominees);
+            int chosenPlayerIndex = temp.get(i).findFavorite(nominees, true);
             results[chosenPlayerIndex]++;
             if (playerArr[chosenPlayerIndex] == nominees.get(0)) {
-                nominees.get(0).changeOpinionOf(temp.get(i), + 5, false, false);
-                nominees.get(1).changeOpinionOf(temp.get(i), - 5, false, false);
+                nominees.get(0).changeOpinionOf(temp.get(i), + 10, false, false, true, false, false);
+                nominees.get(1).changeOpinionOf(temp.get(i), - 10, false, false, true, false, false);
             }
             else {
-                nominees.get(1).changeOpinionOf(temp.get(i), + 5, false, false);
-                nominees.get(0).changeOpinionOf(temp.get(i), - 5, false,false);
+                nominees.get(1).changeOpinionOf(temp.get(i), + 10, false, false, true, false, false);
+                nominees.get(0).changeOpinionOf(temp.get(i), - 10, false,false, true, false, false);
             }
         }
         for (int i = 0; i < numPlayers; i++) {
             playerArr[i].setVotes(results[i]);
         }
-        int[] winner = findNominateWinners(results, true);
-        return playerArr[winner[0]];
+        ArrayList<Player> winner = findNominateWinners(results, true);
+        return winner.get(0);
     }
 
-    public int[] voteForNominees(ArrayList<Player> players) {
+    public ArrayList<Player> voteForNominees(ArrayList<Player> players) {
         System.out.println("Nominating leader");
         int[] results = new int[numPlayers];
         for (int i = 0; i < players.size(); i++ ) {
-            results[players.get(i).findFavorite(players)]++;
+            results[players.get(i).findFavorite(players, true)]++;
         }
         for (int i = 0; i < numPlayers; i++) {
             playerArr[i].setNominations(results[i]);
         }
         System.out.println("Nominee Votes: " + Arrays.toString(results));
 
-        results = findNominateWinners(results, true);
-        return results;
+        return findNominateWinners(results, true);
+
     }
 
     private int[] countVotes(int[] nom) {
@@ -244,6 +236,60 @@ public class GameManager {
         return votes;
     }
 
+    public ArrayList<Player> findNominateWinners(int[] votes, boolean verbose) {
+        int max = Arrays.stream(votes).max().getAsInt();
+        ArrayList<Player> result = new ArrayList<>();
+        ArrayList<Player> temp = new ArrayList<>();
+
+        for (int i = 0; i < votes.length; i++) {
+            if (votes[i] == max) {
+                result.add(playerArr[i]);
+            }
+        }
+
+        if (result.size() == 1) {
+            votes[result.get(0).getPlayerIndex()] = 0;
+            max = Arrays.stream(votes).max().getAsInt();
+            for (int i = 0; i < votes.length; i++) {
+                if (votes[i] == max) {
+                    temp.add(playerArr[i]);
+                }
+            }
+            if (temp.size() == 1) {
+                result.addAll(temp);
+                return result;
+            }
+            temp = latestLoserTieBreaker(temp);
+            result.add(temp.get(0));
+            return result;
+        }
+        return latestLoserTieBreaker(result);
+    }
+
+    public ArrayList<Player> latestLoserTieBreaker(ArrayList<Player> playersToChooseFrom) {
+        if (latestLoser != null) {
+            ArrayList<Player> result = new ArrayList<>();
+            result.add(playerArr[latestLoser.findFavorite(playersToChooseFrom, false)]);
+            playersToChooseFrom.removeAll(result);
+            result.add(playerArr[latestLoser.findFavorite(playersToChooseFrom, false)]);
+            return result;
+        }
+        return placementTieBreaker(playersToChooseFrom);
+    }
+
+    private ArrayList<Player>  placementTieBreaker(ArrayList<Player> playersToChooseFrom) {
+        Collections.sort(playersToChooseFrom, new Comparator<Player>() {
+            @Override
+            public int compare(Player p1, Player p2) {
+                return Integer.compare(p1.getPlacement(), p2.getPlacement());
+            }
+        });
+        if (playersToChooseFrom.size() == 2) {
+            return playersToChooseFrom;
+        }
+        return new ArrayList<>(playersToChooseFrom.subList(0, 2));
+    }
+/*
     private int[] findNominateWinners(int[] votes, boolean verbose) {
         System.out.println("findNominateWinners()");
         int[] result = new int[2];
@@ -302,6 +348,8 @@ public class GameManager {
         return result;
     }
 
+ */
+
     public Player selectFirstRoundLeader() {
         return this.playerArr[(int)(Math.random() * playerArr.length)];
     }
@@ -324,17 +372,17 @@ public class GameManager {
 
     public void performPlayerActions() {
 
-        for (int i = 0; i < playerActions.size(); i++) {
-            if (playerActions.get(i).isEmpty()) {
+        for (List<Player> playerAction : playerActions) {
+            if (playerAction.isEmpty()) {
                 continue;
             }
-            Player player = playerActions.get(i).get(0);
-            Player praisedPlayer = playerActions.get(i).get(1);
-            Player criticizedPlayer = playerActions.get(i).get(2);
+            Player player = playerAction.get(0);
+            Player praisedPlayer = playerAction.get(1);
+            Player criticizedPlayer = playerAction.get(2);
 
             System.out.println("Performing actions for player: " + player.getName());
-            System.out.println("Praising player: " + praisedPlayer.getName());
-            System.out.println("Criticizing player: " + criticizedPlayer.getName());
+            System.out.println("Praises player: " + praisedPlayer.getName());
+            System.out.println("Criticizes player: " + criticizedPlayer.getName());
 
             clearRelationshipStatusesOfAllPlayers();
             updateRelationshipStatuses();
@@ -362,26 +410,24 @@ public class GameManager {
         }
     }
 
+    public void clearChosenPlayerForAllPlayers() {
+        for (Player player : this.playerArr) {
+            player.clearChosenPlayer();
+        }
+    }
+
 
     public void setPlayerActions(Player player, Player praisedPlayer, Player criticizedPlayer) {
         int actingNum = 0;
         if (!player.isEliminated()) {
             actingNum = player.getPlacement();
         }
+        System.out.println(player.getName() +  " will praise " + praisedPlayer.getName() + " and criticize " + criticizedPlayer.getName() + " acting number: " + actingNum);
+
         Player p = playerArr[player.getPlayerIndex()];
         Player pp = playerArr[praisedPlayer.getPlayerIndex()];
         Player cp = playerArr[criticizedPlayer.getPlayerIndex()];
-
-        System.out.println("TEST!!!!!!!!!!!!!!!!!!!!!");
-        System.out.println(player == playerArr[player.getPlayerIndex()]);
-        System.out.println(praisedPlayer == playerArr[praisedPlayer.getPlayerIndex()]);
-        System.out.println(criticizedPlayer == playerArr[criticizedPlayer.getPlayerIndex()]);
-
-        System.out.println(p == playerArr[player.getPlayerIndex()]);
-        System.out.println(pp == playerArr[praisedPlayer.getPlayerIndex()]);
-        System.out.println(cp == playerArr[criticizedPlayer.getPlayerIndex()]);
-
-
+        
         playerActions.get(actingNum).add(p);
         playerActions.get(actingNum).add(pp);
         playerActions.get(actingNum).add(cp);
@@ -392,7 +438,6 @@ public class GameManager {
     }
 
     public void updateRelationshipStatuses() {
-        System.out.println("playerArr.length: " + playerArr.length);
         clearRelationshipStatusesOfAllPlayers();
         for (Player player : this.playerArr) {
             player.setFinalVotes(0);
@@ -413,10 +458,6 @@ public class GameManager {
             //System.out.println(player.getName() + " InfluenceRemaining= " + player.getInfluenceRemaining());
         }
         for (Player player : this.playerArr) {
-            player.updateInfluenceForMe();
-            System.out.println("Error checking");
-            player.errorCheckRelationshipStatus();
-            player.printOutcomingRelationshipStatus();
         }
     }
 
@@ -437,7 +478,6 @@ public class GameManager {
     }
 
     public void createPlayerActionsList() {
-        System.out.println("CREATING PLAYER ACTIONS");
         List<Player> action1 = new ArrayList<>();
         playerActions.add(action1);
         List<Player> action2 = new ArrayList<>();
@@ -476,6 +516,10 @@ public class GameManager {
 
     public Player getLatestLoser() {
         return this.latestLoser;
+    }
+
+    public int getRoundNUmber() {
+        return roundNum;
     }
 
 

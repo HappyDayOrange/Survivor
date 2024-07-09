@@ -33,8 +33,10 @@ public class GameController {
         mainMenuController.setPlayers(gameManager.getPlayers(), gameManagerPrediction.getPlayers(), gameManagerPreview.getPlayers());
         mainMenuController.setGameManagers(gameManager, gameManagerPrediction, gameManagerPreview);
         mainMenuController.setGameController(this);
+        mainMenuController.initialize();
         Scene scene = new Scene(root, 1820, 980);
         mainMenuController.saveScene(scene);
+        scene.getStylesheets().add(getClass().getResource("styles.css").toExternalForm());
         stage.setTitle("Survivor");
         stage.setScene(scene);
         stage.show();
@@ -77,8 +79,6 @@ public class GameController {
                 AIOverallStrategy strategy = new AIOverallStrategy(gameManager, gameManagerPrediction, roundStrategy, player, settings.getPlayerStrategy(player.getPlayerIndex()));
                 player.setStrategy(strategy);
             }
-
-
         }
     }
 
@@ -86,6 +86,7 @@ public class GameController {
         for (Player player : gameManager.playerArr) {
             player.setPlacement(gameManagerPrediction.playerArr[player.getPlayerIndex()].getPlacement());
         }
+        gameManager.playersPickingActions();
     }
 
 

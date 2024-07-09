@@ -32,6 +32,12 @@ public class PlayerDetailsController {
     @FXML
     private TableColumn<Player, Integer> fxInOpinionChange;
     @FXML
+    private TableColumn<Player, Integer> fxMyActions;
+    @FXML
+    private TableColumn<Player, Integer> fxOtherActions;
+    @FXML
+    private TableColumn<Player, Integer> fxPassive;
+    @FXML
     private TableColumn<Player, Integer> fxOutgoingOpinion;
     @FXML
     private TableColumn<Player, Integer> fxOutOpinionChange;
@@ -49,6 +55,10 @@ public class PlayerDetailsController {
     private TableColumn<Player, Integer> fxPraiseSumPreview;
     @FXML
     private TableColumn<Player, Integer> fxCriticizeSumPreview;
+    @FXML
+    private TableColumn<Player, Integer> fxPraiseSumRemainingPreview;
+    @FXML
+    private TableColumn<Player, Integer> fxCriticizeSumRemainingPreview;
     @FXML
     private TableColumn<Player, Integer> fxInfluenceForMe;
     @FXML
@@ -81,6 +91,24 @@ public class PlayerDetailsController {
         fxOutOpinionChange.setCellValueFactory(cellData -> {
             Player otherPlayer = cellData.getValue();
             int relationshipValue = otherPlayer.getInRelationshipsChange(selectedPlayer);
+            return new ReadOnlyIntegerWrapper(relationshipValue).asObject();
+        });
+
+        fxMyActions.setCellValueFactory(cellData -> {
+            Player otherPlayer = cellData.getValue();
+            int relationshipValue = selectedPlayer.getInRelationshipsChangeMyActions(otherPlayer);
+            return new ReadOnlyIntegerWrapper(relationshipValue).asObject();
+        });
+
+        fxOtherActions.setCellValueFactory(cellData -> {
+            Player otherPlayer = cellData.getValue();
+            int relationshipValue = selectedPlayer.getInRelationshipsChangeOtherPlayerActions(otherPlayer);
+            return new ReadOnlyIntegerWrapper(relationshipValue).asObject();
+        });
+
+        fxPassive.setCellValueFactory(cellData -> {
+            Player otherPlayer = cellData.getValue();
+            int relationshipValue = selectedPlayer.getInRelationshipsChangePassive(otherPlayer);
             return new ReadOnlyIntegerWrapper(relationshipValue).asObject();
         });
 
@@ -120,6 +148,18 @@ public class PlayerDetailsController {
             return new ReadOnlyIntegerWrapper(relationshipValue).asObject();
         });
 
+        fxPraiseSumRemainingPreview.setCellValueFactory(cellData -> {
+            Player otherPlayer = cellData.getValue();
+            int relationshipValue = selectedPlayer.getPraiseRemainingSumPreview(otherPlayer);
+            return new ReadOnlyIntegerWrapper(relationshipValue).asObject();
+        });
+
+        fxCriticizeSumRemainingPreview.setCellValueFactory(cellData -> {
+            Player otherPlayer = cellData.getValue();
+            int relationshipValue = selectedPlayer.getCriticizeRemainingSumPreview(otherPlayer);
+            return new ReadOnlyIntegerWrapper(relationshipValue).asObject();
+        });
+
         fxInfluenceForMe.setCellValueFactory(cellData -> {
             Player otherPlayer = cellData.getValue();
             int relationshipValue = otherPlayer.getInfluenceForMe(selectedPlayer);
@@ -145,15 +185,30 @@ public class PlayerDetailsController {
         });
 
 
-        fxTable.setRowFactory(tv -> {
-            TableRow<Player> row = new TableRow<>();
-            row.setOnMouseClicked(event -> {
-                if (event.getClickCount() == 2 && (!row.isEmpty())) {
-                    Player rowData = row.getItem();
-                    showPlayerDetails(rowData);
+        fxTable.setRowFactory(tv -> new TableRow<>() {
+            @Override
+            protected void updateItem(Player item, boolean empty) {
+                super.updateItem(item, empty);
+                if (item == null || empty) {
+                    setStyle("");
+                } else {
+                    if (item.getPlacement() == 1) {
+                        setStyle("-fx-background-color: rgba(0, 255, 0, 0.2)");
+                    } else if (item.isEliminated()){
+                        setStyle("-fx-background-color: rgba(255, 0, 0, 0.2)");
+                    } else {
+                        setStyle("");
+                    }
                 }
-            });
-            return row;
+
+                setOnMouseClicked(event -> {
+                    setStyle("-fx-background-color: -fx-selection-bar");
+                    if (event.getClickCount() == 2 && !isEmpty()) {
+                        Player rowData = getItem();
+                        showPlayerDetails(rowData);
+                    }
+                });
+            }
         });
     }
     private void showPlayerDetails(Player selectedPlayer) {
