@@ -8,7 +8,7 @@
 
 <Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="980.0" prefWidth="1880.0" stylesheets="@styles.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="is.ballus.survivor.MainMenuController">
    <children>
-      <Button fx:id="fxSimulateRoundButton" layoutX="401.0" layoutY="653.0" mnemonicParsing="false" onAction="#simulateRound" text="SimulateRound" />
+      <Button fx:id="fxSimulateRoundButton" layoutX="825.0" layoutY="896.0" mnemonicParsing="false" onAction="#simulateRound" text="SimulateRound" />
       <Label layoutX="262.0" layoutY="30.0" text="Players" />
       <TableView fx:id="fxTable" layoutX="22.0" layoutY="54.0" prefHeight="379.0" prefWidth="900.0">
         <columns>
@@ -43,11 +43,11 @@
             <TableColumn fx:id="fxCriticizedPlayerPrediction" prefWidth="75.0" text="Criticized" />
          </columns>
       </TableView>
-      <Label fx:id="fxPraiseLabel" layoutX="267.0" layoutY="610.0" text="No one" />
-      <Label fx:id="fxCriticizeLabel" layoutX="267.0" layoutY="708.0" text="No one" />
-      <Button fx:id="fxPraiseButton" layoutX="173.0" layoutY="606.0" mnemonicParsing="false" onAction="#selectPraise" text="Praise" />
-      <Button fx:id="fxCriticizeButton" layoutX="173.0" layoutY="704.0" mnemonicParsing="false" onAction="#selectCriticize" text="Criticize" />
-      <Button fx:id="fxEndTurnButton" layoutX="671.0" layoutY="653.0" mnemonicParsing="false" onAction="#endTurn" text="End turn" />
+      <Label fx:id="fxPraiseLabel" layoutX="258.0" layoutY="900.0" text="No one" />
+      <Label fx:id="fxCriticizeLabel" layoutX="461.0" layoutY="900.0" text="No one" />
+      <Button fx:id="fxPraiseButton" layoutX="164.0" layoutY="896.0" mnemonicParsing="false" onAction="#selectPraise" text="Praise" />
+      <Button fx:id="fxCriticizeButton" layoutX="367.0" layoutY="896.0" mnemonicParsing="false" onAction="#selectCriticize" text="Criticize" />
+      <Button fx:id="fxEndTurnButton" layoutX="1011.0" layoutY="896.0" mnemonicParsing="false" onAction="#endTurn" text="End turn" />
       <TableView fx:id="fxTablePreview" layoutX="952.0" layoutY="464.0" prefHeight="379.0" prefWidth="900.0">
          <columns>
             <TableColumn fx:id="fxNameColumnPreview" prefWidth="75.0" text="name" />
@@ -62,6 +62,22 @@
             <TableColumn fx:id="fxEliminatedColumnPreview" prefWidth="75.0" text="Eliminated" />
             <TableColumn fx:id="fxPraisedPlayerPreview" prefWidth="75.0" text="Praised" />
             <TableColumn fx:id="fxCriticizedPlayerPreview" prefWidth="75.0" text="Criticized" />
+         </columns>
+      </TableView>
+      <TableView fx:id="fxTablePartial" layoutX="22.0" layoutY="464.0" prefHeight="379.0" prefWidth="900.0">
+         <columns>
+            <TableColumn fx:id="fxNameColumnPartial" prefWidth="75.0" text="name" />
+            <TableColumn fx:id="fxOverallOpinionColumnPartial" prefWidth="75.0" text="Overall Opinion" />
+            <TableColumn fx:id="fxInfluencePartial" prefWidth="75.0" text="Influence" />
+            <TableColumn fx:id="fxInfluenceRemainingPartial" prefWidth="75.0" text="InfluenceR" />
+            <TableColumn fx:id="fxPlacementPartial" prefWidth="75.0" text="Placement" />
+            <TableColumn fx:id="fxNominationsPartial" prefWidth="75.0" text="Nominations" />
+            <TableColumn fx:id="fxVotesPartial" prefWidth="75.0" text="Votes" />
+            <TableColumn fx:id="fxHeadToHeadPartial" prefWidth="75.0" text="H2H" />
+            <TableColumn fx:id="fxFinalVotesPartial" prefWidth="75.0" text="Final Votes" />
+            <TableColumn fx:id="fxEliminatedColumnPartial" prefWidth="75.0" text="Eliminated" />
+            <TableColumn fx:id="fxPraisedPlayerPartial" prefWidth="75.0" text="Praised" />
+            <TableColumn fx:id="fxCriticizedPlayerPartial" prefWidth="75.0" text="Criticicized" />
          </columns>
       </TableView>
    </children>

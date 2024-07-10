@@ -7,12 +7,8 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableRow;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -101,36 +97,73 @@ public class MainMenuController {
     private TableColumn<Player, String> fxCriticizedPlayerPreview;
 
     @FXML
+    private TableView<Player> fxTablePartial;
+    @FXML
+    private TableColumn<Player, String> fxNameColumnPartial;
+    @FXML
+    private TableColumn<Player, Integer> fxOverallOpinionColumnPartial;
+    @FXML
+    private TableColumn<Player, Integer> fxInfluencePartial;
+    @FXML
+    private TableColumn<Player, Integer> fxInfluenceRemainingPartial;
+    @FXML
+    private TableColumn<Player, Integer> fxPlacementPartial;
+    @FXML
+    private TableColumn<Player, Integer> fxFinalVotesPartial;;
+    @FXML
+    private TableColumn<Player, Integer> fxHeadToHeadPartial;
+    @FXML
+    private TableColumn<Player, Integer> fxNominationsPartial;
+    @FXML
+    private TableColumn<Player, Integer> fxVotesPartial;
+    @FXML
+    private TableColumn<Player, Boolean> fxEliminatedColumnPartial;
+    @FXML
+    private TableColumn<Player, String> fxPraisedPlayerPartial;
+    @FXML
+    private TableColumn<Player, String> fxCriticizedPlayerPartial;
+
+    @FXML
     private Label fxPraiseLabel;
     @FXML
     private Label fxCriticizeLabel;
 
+    @FXML
+    private Button fxEndTurnButton;
+
+
     private ObservableList<Player> playerList;
     private ObservableList<Player> playerListPrediction;
     private ObservableList<Player> playerListPreview;
+    private ObservableList<Player> playerListPartialTurn;
     private Scene thisScene;
     private GameManager gameManager;
     private GameManager gameManagerPrediction;
     private GameManager gameManagerPreview;
+    private GameManager gameManagerPartial;
     private Player humanPlayer;
     private Player praisedPlayer;
     private Player criticizedPlayer;
     private GameController gameController;
+    private int actionCounter = 1;
 
 
-    public void setPlayers(Player[] players, Player[] playersPrediction, Player[] playersPreview) {
+    public void setPlayers(Player[] players, Player[] playersPrediction, Player[] playersPreview, Player[] playersPartialTurn) {
         this.playerList = FXCollections.observableArrayList(players);
         fxTable.setItems(this.playerList);
         this.playerListPrediction = FXCollections.observableArrayList(playersPrediction);
         fxTablePrediction.setItems(this.playerListPrediction);
         this.playerListPreview = FXCollections.observableArrayList(playersPreview);
         fxTablePreview.setItems(this.playerListPreview);
+        this.playerListPartialTurn = FXCollections.observableArrayList(playersPartialTurn);
+        fxTablePartial.setItems(this.playerListPartialTurn);
     }
 
-    public void setGameManagers(GameManager manager, GameManager managerPrediction, GameManager previewManager) {
+    public void setGameManagers(GameManager manager, GameManager managerPrediction, GameManager previewManager, GameManager partialTurn) {
         this.gameManager = manager;
         this.gameManagerPrediction = managerPrediction;
         this.gameManagerPreview = previewManager;
+        this.gameManagerPartial= partialTurn;
         this.humanPlayer = manager.getHumanPlayer();
 
     }
@@ -287,6 +320,52 @@ public class MainMenuController {
             }
         });
 
+        fxNameColumnPartial.setCellValueFactory(new PropertyValueFactory<>("name"));
+        fxOverallOpinionColumnPartial.setCellValueFactory(new PropertyValueFactory<>("inRelationSum"));
+        fxInfluencePartial.setCellValueFactory(new PropertyValueFactory<>("influence"));
+        fxInfluenceRemainingPartial.setCellValueFactory(new PropertyValueFactory<>("influenceRemaining"));
+        fxPlacementPartial.setCellValueFactory(new PropertyValueFactory<>("placement"));
+        fxFinalVotesPartial.setCellValueFactory(new PropertyValueFactory<>("finalVotes"));
+        fxHeadToHeadPartial.setCellValueFactory(new PropertyValueFactory<>("headToHeadWins"));
+        fxNominationsPartial.setCellValueFactory(new PropertyValueFactory<>("nominations"));
+        fxVotesPartial.setCellValueFactory(new PropertyValueFactory<>("votes"));
+        fxEliminatedColumnPartial.setCellValueFactory(new PropertyValueFactory<>("eliminated"));
+        fxPraisedPlayerPartial.setCellValueFactory(new PropertyValueFactory<>("praisedPlayerAsString"));
+        fxCriticizedPlayerPartial.setCellValueFactory(new PropertyValueFactory<>("criticizedPlayerAsString"));
+
+        // Sort by placement by default
+        fxPlacementPartial.setSortType(TableColumn.SortType.ASCENDING); // or DESCENDING
+        fxTablePartial.getSortOrder().add(fxPlacement);
+
+        //rowFactoryInit(fxTable, playerList);
+
+        fxTablePartial.setRowFactory(tv -> new TableRow<>() {
+            @Override
+            protected void updateItem(Player item, boolean empty) {
+                super.updateItem(item, empty);
+                if (item == null || empty) {
+                    setStyle("");
+                } else {
+                    if (item.getPlacement() == 1) {
+                        setStyle("-fx-background-color: rgba(0, 255, 0, 0.2)");
+                    } else if (item.isEliminated()){
+                        setStyle("-fx-background-color: rgba(255, 0, 0, 0.2)");
+                    } else {
+                        setStyle("");
+                    }
+                }
+
+                setOnMouseClicked(event -> {
+                    System.out.println(item.getCriticizedPlayerAsString());
+                    setStyle("-fx-background-color: -fx-selection-bar");
+                    if (event.getClickCount() == 2 && !isEmpty()) {
+                        Player rowData = getItem();
+                        showPlayerDetails(rowData, playerListPartialTurn, fxTablePartial);
+                    }
+                });
+            }
+        });
+
     }
     private void showPlayerDetails(Player selectedPlayer, ObservableList<Player> otherPlayers, TableView<Player> table) {
         try {
@@ -316,11 +395,21 @@ public class MainMenuController {
 
     @FXML
     public void endTurn() {
-        gameController.endTurn(humanPlayer, praisedPlayer, criticizedPlayer);
+        if (actionCounter != gameManager.remainingPlayers.size() + 1) {
+            gameController.endTurn(humanPlayer, praisedPlayer, criticizedPlayer, false, actionCounter);
+            fxEndTurnButton.setText("Continue");
+            actionCounter++;
+        } else {
+            gameController.endTurn(humanPlayer, praisedPlayer, criticizedPlayer, true, actionCounter);
+            fxEndTurnButton.setText("End Turn");
+            actionCounter = 1;
+        }
+
         fxPraiseLabel.setText("No one");
         this.praisedPlayer = null;
         fxCriticizeLabel.setText("No one");
         this.criticizedPlayer = null;
+
     }
 
     public void reloadData() {

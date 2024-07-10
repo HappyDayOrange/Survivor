@@ -47,14 +47,21 @@ public class GameManager {
             }
         }
         this.humanPlayer = manager.humanPlayer;
-        createPlayerActionsList();
-        this.clearPlayerActions();
         this.relationshipManager = new RelationshipManager(numPlayers, playerArr);
         this.firstRoundWinner = playerArr[manager.firstRoundWinner.getPlayerIndex()];
         if (manager.getLatestLoser() != null) {
             this.latestLoser = playerArr[manager.getLatestLoser().getPlayerIndex()];
         }
         this.updateRelationshipStatuses();
+        this.playerActions = new ArrayList<>();
+        for (List<Player> list : manager.playerActions) {
+            playerActions.add(new ArrayList<Player>(list));
+        }
+        for (int i = 0; i < playerArr.length; i++) {
+            Player player = playerArr[i];
+            player.setPraisedPlayer(manager.playerArr[i].getPraisedPlayer());
+            player.setCriticizedPlayer(manager.playerArr[i].getCriticizedPlayer());
+        }
     }
 
     public void setup(Settings settings) {
@@ -80,7 +87,7 @@ public class GameManager {
         this.firstRoundWinner = this.selectFirstRoundLeader();
     }
 
-    public void simulateRound() {
+    public void simulateRound(int numberOfActions, boolean simulateAllActions) {
         if (this.roundNum == 0) {
             playerList.get(0).calculateHeadToHead(playerList);
         }
@@ -95,7 +102,7 @@ public class GameManager {
             this.setPlayerActions(latestLoser, result[0], result[1]);
         }
          */
-        this.performPlayerActions();
+        this.performPlayerActions(numberOfActions, simulateAllActions);
 
         if (this.roundNum == 0) {
             handleFirstRound();
@@ -107,8 +114,11 @@ public class GameManager {
 
         this.updateRelationshipStatuses();
         this.calculatePreviewSums();
-        this.clearPlayerActions();
-        this.playersPickingActions();
+        if (simulateAllActions) {
+            this.clearPlayerActions();
+            this.playersPickingActions();
+        }
+
     }
 
     private void resetRelationshipChange() {
@@ -370,25 +380,34 @@ public class GameManager {
         PraisingPlayer.praisePlayer(PraisedPlayer, false);
     }
 
-    public void performPlayerActions() {
+    public void performPlayerActions(int numberOfActionsToSimulate, boolean simulateAll) {
+        if (simulateAll) {
+            numberOfActionsToSimulate = playerActions.size() - 1;
+        }
+        System.out.println("Round number " + roundNum);
+        System.out.println("playerActions.size() " + playerActions.size());
+        System.out.println("numberOfActionsToSimulate " + numberOfActionsToSimulate);
+        for (int i = 0; i <= numberOfActionsToSimulate; i++) {
+            List<Player> playerAction = playerActions.get(i);
+            if (!playerAction.isEmpty()) {
+                Player player = playerArr[playerAction.get(0).getPlayerIndex()];
+                Player praisedPlayer = playerArr[playerAction.get(1).getPlayerIndex()];
+                Player criticizedPlayer = playerArr[playerAction.get(2).getPlayerIndex()];
 
-        for (List<Player> playerAction : playerActions) {
-            if (playerAction.isEmpty()) {
-                continue;
+                System.out.println("Performing actions for player: " + player.getName());
+                System.out.println("Praises player: " + praisedPlayer.getName());
+                System.out.println("Criticizes player: " + criticizedPlayer.getName());
+
+                clearRelationshipStatusesOfAllPlayers();
+                updateRelationshipStatuses();
+
+                player.praisePlayer(praisedPlayer, false);
+                player.criticizePlayer(criticizedPlayer, false);
+
+                System.out.println("After Performing actions for player: " + player.getName());
+                System.out.println("He Praised : " + player.getPraisedPlayerAsString());
+                System.out.println("He Criticized: " + player.getCriticizedPlayerAsString());
             }
-            Player player = playerAction.get(0);
-            Player praisedPlayer = playerAction.get(1);
-            Player criticizedPlayer = playerAction.get(2);
-
-            System.out.println("Performing actions for player: " + player.getName());
-            System.out.println("Praises player: " + praisedPlayer.getName());
-            System.out.println("Criticizes player: " + criticizedPlayer.getName());
-
-            clearRelationshipStatusesOfAllPlayers();
-            updateRelationshipStatuses();
-
-            player.praisePlayer(praisedPlayer, false);
-            player.criticizePlayer(criticizedPlayer, false);
         }
     }
 

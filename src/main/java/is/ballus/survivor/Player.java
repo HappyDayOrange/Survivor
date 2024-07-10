@@ -227,6 +227,7 @@ public class Player {
         inRelationshipsChangePassive = new int[numPlayers];
         inRelationshipsChangeMyActions = new int[numPlayers];
         inRelationshipsChangeOtherPlayerActions = new int[numPlayers];
+
     }
 
     public boolean setInitialRelations(List<Player> players) {
