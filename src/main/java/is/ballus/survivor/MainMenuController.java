@@ -356,7 +356,6 @@ public class MainMenuController {
                 }
 
                 setOnMouseClicked(event -> {
-                    System.out.println(item.getCriticizedPlayerAsString());
                     setStyle("-fx-background-color: -fx-selection-bar");
                     if (event.getClickCount() == 2 && !isEmpty()) {
                         Player rowData = getItem();

@@ -60,6 +60,7 @@ public class Player {
     private int nominations = 0;
     private int votes = 0;
     private int finalVotes = 0;
+    private int eliminationVotes = 0;
     public String playerName;
     private List<Player> generateHelper = new ArrayList<Player>();
     private ArrayList<Player> errorListPlayers = new ArrayList<Player>();
@@ -520,32 +521,38 @@ public class Player {
     }
 
     public void selectNextPlace(ArrayList<Player> players) {
-        if (players.size() == 1) {
-            players.get(0).setPlacement(this.getPlacement() + 1);
+        int baseValue = 5;
+        if (players.size() == 2) {
             return;
         }
-        if (players.size() != 2) {
+        if (players.size() > 3) {
             this.chosenPlayer = playerArr[findFavorite(players, true)];
             players.remove(chosenPlayer);
             this.closestFromBeingChosen = playerArr[findFavorite(players, false)];
             chosenPlayer.setPlacement(this.getPlacement() + 1);
-            changeOpinionOfMe(chosenPlayer, (players.size()) * 5, false, true, false, false);
+            changeOpinionOfMe(chosenPlayer, (players.size()) * baseValue, false, true, false, false);
             for (Player player : players) {
                 if (player != chosenPlayer) {
-                    this.changeOpinionOfMe(player, -5, false, true, false, false);
+                    this.changeOpinionOfMe(player, -baseValue, false, true, false, false);
                 }
             }
             chosenPlayer.selectNextPlace(players);
         } else {
+            baseValue *= 3;
             this.chosenPlayer = playerArr[findFavorite(players, true)];
             this.chosenPlayer.clearChosenPlayer();
             chosenPlayer.setPlacement(this.getPlacement() + 1);
-            this.changeOpinionOfMe(chosenPlayer, 50, false, true, false, false);
             players.remove(chosenPlayer);
-            this.closestFromBeingChosen = players.get(0);
-            this.closestFromBeingChosen.clearChosenPlayer();
-            this.changeOpinionOfMe(closestFromBeingChosen, -50, false, true, false, false);
-            closestFromBeingChosen.setPlacement(this.getPlacement() + 2);
+            this.closestFromBeingChosen = playerArr[findFavorite(players, false)];
+            for (Player player : players) {
+                player.clearChosenPlayer();
+            }
+            changeOpinionOfMe(chosenPlayer, (players.size()) * baseValue, false, true, false, false);
+            for (Player player : players) {
+                if (player != chosenPlayer) {
+                    this.changeOpinionOfMe(player, -baseValue, false, true, false, false);
+                }
+            }
 
             /*
             for (Player player : playerArr) {
@@ -1328,6 +1335,17 @@ public class Player {
         return outcomingRelationshipStatus.get(index);
     }
 
+    public int getEliminationVotes() {
+        return eliminationVotes;
+    }
+
+    public void setEliminationVotes(int eliminationVotes) {
+        this.eliminationVotes = eliminationVotes;
+    }
+
+    public void incrementEliminationVotes() {
+        this.eliminationVotes++;
+    }
 }
 
 

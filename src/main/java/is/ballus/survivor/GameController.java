@@ -29,7 +29,7 @@ public class GameController {
         gameManagerPreview = new GameManager(gameManager);
         partialTurn = new GameManager(gameManager);
         assignStrategies();
-        gameManagerPrediction.simulateRound(0, true);
+        gameManagerPrediction.simulateRound(0, true, false);
         firstRoundPlacements();
         System.out.println("búbb");
         mainMenuController.setPlayers(gameManager.getPlayers(), gameManagerPrediction.getPlayers(), gameManagerPreview.getPlayers(), partialTurn.getPlayers());
@@ -48,7 +48,7 @@ public class GameController {
             if (praisedPlayer != null && criticizedPlayer != null) {
                 this.gameManagerPreview.setPlayerActions(humanPlayer, praisedPlayer, criticizedPlayer);
             }
-            this.gameManagerPreview.simulateRound(0, true);
+            this.gameManagerPreview.simulateRound(0, true, false);
         }
         mainMenuController.setPlayers(gameManager.getPlayers(), gameManagerPrediction.getPlayers(), gameManagerPreview.getPlayers(), partialTurn.getPlayers());
         mainMenuController.setGameManagers(gameManager, gameManagerPrediction, gameManagerPreview, partialTurn);
@@ -58,7 +58,7 @@ public class GameController {
     public void endTurn(Player humanPlayer, Player praisedPlayer, Player criticizedPlayer, boolean simulateAll, int numOfActions) {
         if (!simulateAll) {
             partialTurn = new GameManager(gameManager);
-            partialTurn.simulateRound(numOfActions, false);
+            partialTurn.simulateRound(numOfActions, false, false);
             mainMenuController.setPlayers(gameManager.getPlayers(), gameManagerPrediction.getPlayers(), gameManagerPreview.getPlayers(), partialTurn.getPlayers());
             mainMenuController.setGameManagers(gameManager, gameManagerPrediction, gameManagerPreview, partialTurn);
             mainMenuController.reloadData();
@@ -68,11 +68,11 @@ public class GameController {
                     gameManager.setPlayerActions(humanPlayer, praisedPlayer, criticizedPlayer);
                 }
                 partialTurn = new GameManager(gameManager);
-                gameManager.simulateRound(0, true);
+                gameManager.simulateRound(0, true, false);
             }
             if (gameManagerPrediction.remainingPlayers.size() > 1) {
                 this.gameManagerPrediction = new GameManager(gameManager);
-                gameManagerPrediction.simulateRound(0, true);
+                gameManagerPrediction.simulateRound(0, true, true);
             }
             mainMenuController.setPlayers(gameManager.getPlayers(), gameManagerPrediction.getPlayers(), gameManagerPreview.getPlayers(), partialTurn.getPlayers());
             mainMenuController.setGameManagers(gameManager, gameManagerPrediction, gameManagerPreview, partialTurn);
